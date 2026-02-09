@@ -1,0 +1,662 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <title>Job Tracker</title>
+  <style>
+    :root {
+      --bg: #0f172a;
+      --card: #1e293b;
+      --card-hover: #334155;
+      --primary: #3b82f6;
+      --primary-hover: #2563eb;
+      --text: #f8fafc;
+      --text-muted: #94a3b8;
+      --border: #334155;
+      --success: #22c55e;
+      --danger: #ef4444;
+      --warning: #f59e0b;
+      --gradient-current: linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(168, 85, 247, 0.1) 100%);
+    }
+
+    * {
+      box-sizing: border-box;
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    }
+
+    body {
+      margin: 0;
+      width: 420px;
+      min-height: 550px;
+      background: var(--bg);
+      color: var(--text);
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+    }
+
+    /* HEADER */
+    .header {
+      padding: 16px 20px;
+      background: rgba(15, 23, 42, 0.8);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 50;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 700;
+      font-size: 16px;
+      color: var(--text);
+      letter-spacing: -0.02em;
+    }
+
+    .brand-icon {
+      width: 24px;
+      height: 24px;
+      background: linear-gradient(135deg, var(--primary), #a855f7);
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      color: white;
+      box-shadow: 0 2px 8px rgba(99, 102, 241, 0.3);
+    }
+
+    .header-actions {
+      display: flex;
+      gap: 8px;
+    }
+
+    .icon-btn {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .icon-btn:hover {
+      background: var(--card);
+      color: var(--text);
+      border-color: var(--text-muted);
+      transform: translateY(-1px);
+    }
+
+    /* SEARCH */
+    .search-container {
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--border);
+      background: var(--bg);
+    }
+
+    .search-input {
+      width: 100%;
+      background: var(--card);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 12px 14px;
+      border-radius: 10px;
+      font-size: 13px;
+      transition: all 0.2s;
+    }
+
+    .search-input:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2);
+    }
+
+    /* SECTIONS */
+    .section {
+      padding: 20px;
+    }
+
+    .section-header {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-muted);
+      font-weight: 700;
+      margin-bottom: 14px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    /* CARDS */
+    .job-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 12px;
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    }
+
+    .job-card:hover {
+      transform: translateY(-2px);
+      border-color: var(--primary);
+      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    }
+
+    /* Current Job Specifics */
+    .current-job-card {
+      background: var(--gradient-current);
+      border: 1px solid rgba(59, 130, 246, 0.3);
+      position: relative;
+    }
+
+    .current-job-card:hover {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 1px var(--primary), 0 10px 15px -3px rgba(59, 130, 246, 0.2);
+    }
+
+    .job-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 10px;
+    }
+
+    .job-title {
+      font-weight: 600;
+      font-size: 16px;
+      line-height: 1.4;
+      color: var(--text);
+      margin-bottom: 4px;
+    }
+
+    .job-company {
+      font-size: 13px;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-weight: 500;
+    }
+
+    .job-info {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 14px;
+    }
+
+    .tag {
+      font-size: 11px;
+      padding: 5px 10px;
+      border-radius: 20px;
+      background: rgba(255, 255, 255, 0.05);
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      font-weight: 500;
+    }
+
+    .tag:hover {
+      background: rgba(255, 255, 255, 0.1);
+      color: var(--text);
+    }
+
+    .status-badge {
+      font-size: 10px;
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.02em;
+    }
+
+    .status-applied {
+      background: rgba(99, 102, 241, 0.15);
+      color: var(--primary);
+      border: 1px solid rgba(99, 102, 241, 0.2);
+    }
+
+    .status-interview {
+      background: rgba(245, 158, 11, 0.15);
+      color: var(--warning);
+      border: 1px solid rgba(245, 158, 11, 0.2);
+    }
+
+    .status-offer {
+      background: rgba(34, 197, 94, 0.15);
+      color: var(--success);
+      border: 1px solid rgba(34, 197, 94, 0.2);
+    }
+
+    .status-rejected {
+      background: rgba(239, 68, 68, 0.15);
+      color: var(--danger);
+      border: 1px solid rgba(239, 68, 68, 0.2);
+    }
+
+    /* ACTIONS */
+    .job-actions {
+      display: flex;
+      /* Changed from grid to flex */
+      align-items: center;
+      gap: 8px;
+      margin-top: 16px;
+      padding-top: 16px;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .job-actions .btn {
+      flex: 1;
+      /* Distribute space */
+    }
+
+    .job-actions .btn-icon-only {
+      flex: 0 0 36px;
+      /* Fixed width for icon buttons */
+      padding: 0;
+    }
+
+    .btn {
+      padding: 8px 12px;
+      border-radius: 8px;
+      border: 1px solid transparent;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+      line-height: normal;
+      /* Fix line height */
+      white-space: nowrap;
+      /* Prevent wrapping */
+      height: 32px;
+      /* Fixed height for consistency */
+    }
+
+    .btn svg {
+      width: 14px;
+      height: 14px;
+      fill: currentColor;
+      flex-shrink: 0;
+    }
+
+    .btn-primary {
+      background: var(--primary);
+      color: white;
+      border-color: var(--primary);
+      box-shadow: 0 2px 4px rgba(99, 102, 241, 0.2);
+    }
+
+    .btn-primary:hover {
+      background: var(--primary-hover);
+      border-color: var(--primary-hover);
+      transform: translateY(-1px);
+    }
+
+    .btn-secondary {
+      background: rgba(255, 255, 255, 0.05);
+      color: var(--text);
+      border-color: rgba(255, 255, 255, 0.1);
+    }
+
+    .btn-secondary:hover {
+      background: rgba(255, 255, 255, 0.1);
+      border-color: rgba(255, 255, 255, 0.2);
+      transform: translateY(-1px);
+    }
+
+    .btn-outline {
+      background: transparent;
+      border-color: rgba(255, 255, 255, 0.2);
+      color: var(--text-muted);
+    }
+
+    .btn-outline:hover {
+      border-color: var(--text);
+      color: var(--text);
+      background: rgba(255, 255, 255, 0.05);
+    }
+
+    /* ACTIONS */
+    .job-actions {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 8px;
+      margin-top: 16px;
+      padding-top: 16px;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    /* Specific fixes for icon buttons vs text buttons */
+    .job-actions .btn {
+      flex: 0 0 auto;
+    }
+
+    .job-actions .btn-icon-only {
+      width: 32px;
+      padding: 0;
+    }
+
+    .job-actions .btn-full-width {
+      flex: 1;
+    }
+
+    /* SCROLLABLE AREA */
+    .scroll-area {
+      flex: 1;
+      overflow-y: auto;
+      padding-bottom: 20px;
+    }
+
+    .scroll-area::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    .scroll-area::-webkit-scrollbar-track {
+      background: var(--bg);
+    }
+
+    .scroll-area::-webkit-scrollbar-thumb {
+      background: var(--border);
+      border-radius: 3px;
+    }
+
+    .scroll-area::-webkit-scrollbar-thumb:hover {
+      background: var(--text-muted);
+    }
+
+    /* EMPTY STATES */
+    .empty-state {
+      text-align: center;
+      padding: 40px 20px;
+      color: var(--text-muted);
+      font-size: 13px;
+      background: var(--card);
+      border-radius: 12px;
+      border: 1px dashed var(--border);
+      margin: 0 20px;
+    }
+
+    .empty-icon {
+      font-size: 32px;
+      margin-bottom: 8px;
+      opacity: 0.5;
+    }
+
+    /* LOADER */
+    .loader {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      color: var(--text-muted);
+      gap: 8px;
+      font-size: 13px;
+    }
+
+    .spinner {
+      width: 16px;
+      height: 16px;
+      border: 2px solid var(--border);
+      border-top-color: var(--primary);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    /* MODAL */
+    .modal {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.8);
+      z-index: 100;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+    }
+
+    .modal.active {
+      display: flex;
+    }
+
+    .modal-content {
+      background: var(--card);
+      width: 100%;
+      max-height: 90vh;
+      border-radius: 16px;
+      border: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .modal-header {
+      padding: 16px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-weight: 600;
+    }
+
+    .modal-body {
+      padding: 16px;
+      overflow-y: auto;
+    }
+
+    .form-group {
+      margin-bottom: 16px;
+    }
+
+    .form-label {
+      display: block;
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+    }
+
+    .form-input,
+    .form-select,
+    .form-textarea {
+      width: 100%;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 10px;
+      color: var(--text);
+      font-size: 13px;
+    }
+
+    .form-input:focus,
+    .form-select:focus,
+    .form-textarea:focus {
+      outline: none;
+      border-color: var(--primary);
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .modal-footer {
+      padding: 16px;
+      border-top: 1px solid var(--border);
+      display: flex;
+      gap: 12px;
+    }
+
+    .modal-footer .btn {
+      flex: 1;
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- HEADER -->
+  <header class="header">
+    <div class="brand">
+      <div class="brand-icon">JT</div>
+      JobTracker
+    </div>
+    <div class="header-actions">
+      <button id="addManualBtn" class="icon-btn" title="Add Manually">➕</button>
+      <button id="exportBtn" class="icon-btn" title="Export Data">📥</button>
+    </div>
+  </header>
+
+  <!-- SEARCH -->
+  <div class="search-container">
+    <input type="text" id="searchInput" class="search-input" placeholder="Search saved jobs..." />
+  </div>
+
+  <div class="scroll-area">
+    <!-- CURRENT JOB SECTION -->
+    <div class="section">
+      <div class="section-header">
+        <span>Current Job</span>
+      </div>
+      <div id="currentJobContainer">
+        <!-- Injected via JS -->
+      </div>
+    </div>
+
+    <!-- SAVED JOBS SECTION -->
+    <div class="section">
+      <div class="section-header">
+        <span>Saved Jobs</span>
+        <span id="savedCount" style="color: var(--primary)">0</span>
+      </div>
+      <div id="savedJobsContainer">
+        <!-- Injected via JS -->
+      </div>
+    </div>
+  </div>
+
+  <!-- EDIT MODAL -->
+  <div id="jobModal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <span id="modalTitle">Edit Job</span>
+        <button id="modalClose" class="icon-btn" style="border:none;">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label class="form-label">Job Title</label>
+          <input type="text" id="inpTitle" class="form-input" placeholder="Senior Frontend Developer" />
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Company</label>
+          <input type="text" id="inpCompany" class="form-input" placeholder="Acme Corp" />
+        </div>
+
+        <!-- Hiring Team Section -->
+        <div class="form-group"
+          style="padding: 12px; background: rgba(255,255,255,0.03); border-radius: 8px; border: 1px dashed var(--border);">
+          <label class="form-label" style="color: var(--primary); font-weight:600; margin-bottom: 8px;">👤 Hiring Team /
+            Recruiter</label>
+
+          <div class="form-group">
+            <label class="form-label">Name</label>
+            <input type="text" id="inpHrName" class="form-input" placeholder="Recruiter Name" />
+          </div>
+
+          <div class="form-row">
+            <div class="form-group" style="margin-bottom:0">
+              <label class="form-label">Email</label>
+              <input type="text" id="inpHrEmail" class="form-input" placeholder="hr@company.com" />
+            </div>
+            <div class="form-group" style="margin-bottom:0">
+              <label class="form-label">Phone</label>
+              <input type="text" id="inpHrPhone" class="form-input" placeholder="+1 234..." />
+            </div>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Platform</label>
+            <select id="inpPlatform" class="form-select">
+              <option value="linkedin">LinkedIn</option>
+              <option value="indeed">Indeed</option>
+              <option value="naukri">Naukri</option>
+              <option value="glassdoor">Glassdoor</option>
+              <option value="other">Other</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Status</label>
+            <select id="inpStatus" class="form-select">
+              <option value="applied">Applied</option>
+              <option value="interview">Interview</option>
+              <option value="offer">Offer</option>
+              <option value="rejected">Rejected</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Location</label>
+          <input type="text" id="inpLocation" class="form-input" placeholder="Remote / New York" />
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Salary</label>
+          <input type="text" id="inpSalary" class="form-input" placeholder="$120k - $150k" />
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">URL</label>
+          <input type="text" id="inpUrl" class="form-input" placeholder="https://..." />
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Notes</label>
+          <textarea id="inpNotes" class="form-textarea" rows="3"
+            placeholder="Interview notes, tech stack, etc."></textarea>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button id="modalCancel" class="btn btn-secondary">Cancel</button>
+        <button id="modalSave" class="btn btn-primary">Save Job</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+
+</html>
