@@ -1,0 +1,62 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            Int      @id @default(autoincrement())
+  email         String   @unique
+  password_hash String
+  name          String?
+  created_at    DateTime @default(now())
+
+  jobs Jobs[]
+}
+
+model Jobs {
+  id          Int      @id @default(autoincrement())
+  user_id     Int
+  title       String
+  company     String
+  platform    String?
+  location    String?
+  salary      String?
+  job_url     String?
+  status      String   @default("applied")
+  description String?
+  posted_date String?
+  hr_name     String?
+  hr_email    String?
+  hr_phone    String?
+  created_at  DateTime @default(now())
+  updated_at  DateTime @default(now()) @updatedAt
+
+  user         User           @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  interactions Interactions[]
+  reminders    Reminders[]
+}
+
+model Interactions {
+  id      Int      @id @default(autoincrement())
+  job_id  Int
+  type    String
+  content String
+  date    DateTime @default(now())
+
+  job Jobs @relation(fields: [job_id], references: [id], onDelete: Cascade)
+}
+
+model Reminders {
+  id       Int      @id @default(autoincrement())
+  job_id   Int
+  due_date DateTime
+  note     String?
+  status   String   @default("pending")
+  created_at DateTime @default(now())
+
+  job Jobs @relation(fields: [job_id], references: [id], onDelete: Cascade)
+}
