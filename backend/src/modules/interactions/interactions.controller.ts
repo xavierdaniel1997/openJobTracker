@@ -16,7 +16,8 @@ export const createInteraction = async (req: Request, res: Response) => {
 
 export const getJobInteractions = async (req: Request, res: Response) => {
   try {
-    const jobId = parseInt(req.params.jobId || '0');
+    const jobIdParam = req.params.jobId;
+    const jobId = parseInt(Array.isArray(jobIdParam) ? jobIdParam[0] : (jobIdParam || '0'), 10);
     if (isNaN(jobId)) return res.status(400).json({ error: 'Invalid Job ID' });
 
     const interactions = await service.findByJob(jobId);

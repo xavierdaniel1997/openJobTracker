@@ -5,7 +5,7 @@ import { jobSchema } from './jobs.schema';
 const jobsService = new JobsService();
 
 // Mock user ID middleware integration (to be replaced by actual auth middleware)
-const getUserId = (req: Request) => (req as any).user?.id || 1; 
+const getUserId = (req: Request) => (req as any).user.id; 
 
 export const createJob = async (req: Request, res: Response) => {
   try {

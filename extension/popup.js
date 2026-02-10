@@ -15,6 +15,9 @@ async function init() {
     return;
   }
 
+  // Check auth and update header
+  await updateHeaderAuth();
+
   await loadJobs();
   renderSavedJobs();
 
@@ -46,6 +49,13 @@ async function init() {
     jobModal.addEventListener("click", (e) => {
       if (e.target === jobModal) closeModal();
     });
+
+    const signInBtn = document.getElementById("signInBtn");
+    if (signInBtn) {
+      signInBtn.addEventListener("click", () => {
+        chrome.tabs.create({ url: 'http://localhost:3000/login' });
+      });
+    }
   }
 }
 
@@ -356,6 +366,13 @@ function renderSavedJobs(query = "") {
 // ACTIONS
 // -------------------------------------------------------------
 async function quickSave(job) {
+  // Check authentication before saving
+  const isAuthenticated = await checkAuth();
+  if (!isAuthenticated) {
+    chrome.tabs.create({ url: 'http://localhost:3000/login' });
+    return;
+  }
+
   const key = `${job.platform}:${job.jobId}`;
 
   if (allJobs[key]) return; // Already saved
@@ -416,6 +433,14 @@ function closeModal() {
 }
 
 async function saveJobFromModal() {
+  // Check authentication before saving
+  const isAuthenticated = await checkAuth();
+  if (!isAuthenticated) {
+    chrome.tabs.create({ url: 'http://localhost:3000/login' });
+    closeModal();
+    return;
+  }
+
   const inpTitle = document.getElementById("inpTitle");
   const inpCompany = document.getElementById("inpCompany");
 
@@ -511,3 +536,86 @@ window.scrollToSaved = (key) => {
     setTimeout(() => el.style.borderColor = "var(--border)", 2000);
   }
 };
+
+// -------------------------------------------------------------
+// AUTHENTICATION
+// -------------------------------------------------------------
+async function checkAuth() {
+  const result = await chrome.storage.local.get('accessToken');
+  return !!result.accessToken;
+}
+
+async function updateHeaderAuth() {
+  const isAuthenticated = await checkAuth();
+  const signInBtn = document.getElementById('signInBtn');
+  if (signInBtn) {
+    signInBtn.style.display = isAuthenticated ? 'none' : 'inline-flex';
+  }
+}
+
+function renderAuthRequired() {
+  const body = document.body;
+  body.innerHTML = `
+    <div style="
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 550px;
+      padding: 40px 20px;
+      text-align: center;
+      background: var(--bg);
+    ">
+      <div style="
+        width: 64px;
+        height: 64px;
+        background: linear-gradient(135deg, var(--primary), #a855f7);
+        border-radius: 16px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 32px;
+        color: white;
+        margin-bottom: 24px;
+        box-shadow: 0 8px 16px rgba(59, 130, 246, 0.3);
+      ">🔐</div>
+      
+      <h2 style="
+        font-size: 24px;
+        font-weight: 700;
+        color: var(--text);
+        margin-bottom: 12px;
+        letter-spacing: -0.02em;
+      ">Sign In Required</h2>
+      
+      <p style="
+        font-size: 14px;
+        color: var(--text-muted);
+        margin-bottom: 32px;
+        line-height: 1.6;
+        max-width: 320px;
+      ">
+        Please sign in to your JobTracker account to save and manage your job applications.
+      </p>
+      
+      <button id="btnSignIn" class="btn btn-primary" style="
+        font-size: 14px;
+        padding: 14px 32px;
+        height: auto;
+        box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+      ">
+        <svg viewBox="0 0 24 24" style="width: 18px; height: 18px;">
+          <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+        </svg>
+        Sign In to JobTracker
+      </button>
+    </div>
+  `;
+
+  const btnSignIn = document.getElementById('btnSignIn');
+  if (btnSignIn) {
+    btnSignIn.addEventListener('click', () => {
+      chrome.tabs.create({ url: 'http://localhost:3000/login' });
+    });
+  }
+}

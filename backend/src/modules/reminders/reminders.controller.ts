@@ -26,7 +26,7 @@ export const getPendingReminders = async (req: Request, res: Response) => {
 
 export const completeReminder = async (req: Request, res: Response) => {
   try {
-    const id = parseInt(req.params.id || '0');
+    const id = parseInt((req.params.id as string) || '0');
     if (isNaN(id)) return res.status(400).json({ error: 'Invalid ID' });
 
     const reminder = await service.markAsDone(id);

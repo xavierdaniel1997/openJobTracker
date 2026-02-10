@@ -1,0 +1,45 @@
+<svg width="600" height="400" viewBox="0 0 600 400" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background Glow -->
+  <circle cx="300" cy="200" r="150" fill="url(#paint0_radial)" fill-opacity="0.3"/>
+  
+  <!-- Abstract Career path -->
+  <path d="M50 350C150 350 200 150 300 150C400 150 450 250 550 250" stroke="url(#paint1_linear)" stroke-width="4" stroke-linecap="round" stroke-dasharray="8 12"/>
+  
+  <!-- Job Cards Floating -->
+  <rect x="100" y="80" width="120" height="80" rx="16" fill="#1e293b" stroke="#334155" stroke-width="2" class="animate-float" style="animation-delay: 0s;"/>
+  <rect x="120" y="100" width="40" height="8" rx="4" fill="#3b82f6"/>
+  <rect x="120" y="115" width="80" height="6" rx="3" fill="#64748b"/>
+  <rect x="120" y="128" width="60" height="6" rx="3" fill="#64748b"/>
+  
+  <rect x="380" y="50" width="140" height="100" rx="20" fill="#1e293b" stroke="#a855f7" stroke-width="2" class="animate-float" style="animation-delay: 1s;"/>
+  <circle cx="415" cy="85" r="15" fill="#a855f7" fill-opacity="0.2"/>
+  <rect x="440" y="75" width="60" height="10" rx="5" fill="#a855f7"/>
+  <rect x="405" y="115" width="100" height="8" rx="4" fill="#64748b"/>
+  
+  <rect x="250" y="240" width="120" height="90" rx="16" fill="#1e293b" stroke="#334155" stroke-width="2" class="animate-float" style="animation-delay: 2s;"/>
+  <rect x="270" y="265" width="80" height="8" rx="4" fill="#22c55e"/>
+  <rect x="270" y="280" width="60" height="6" rx="3" fill="#64748b"/>
+  
+  <!-- Success rocket -->
+  <g transform="translate(450, 300) rotate(-15)">
+    <path d="M0 0C0 -30 15 -50 30 -50C45 -50 60 -30 60 0L60 10L0 10L0 0Z" fill="url(#paint2_linear)"/>
+    <path d="M-10 10L0 10L0 20L-10 10Z" fill="#ef4444"/>
+    <path d="M70 10L60 10L60 20L70 10Z" fill="#ef4444"/>
+    <rect x="25" y="-30" width="10" height="10" rx="5" fill="white" fill-opacity="0.5"/>
+  </g>
+
+  <defs>
+    <radialGradient id="paint0_radial" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" transform="translate(300 200) rotate(90) scale(150)">
+      <stop stop-color="#3b82f6"/>
+      <stop offset="1" stop-color="#3b82f6" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="paint1_linear" x1="50" y1="350" x2="550" y2="250" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#3b82f6"/>
+      <stop offset="1" stop-color="#a855f7"/>
+    </linearGradient>
+    <linearGradient id="paint2_linear" x1="30" y1="-50" x2="30" y2="10" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#3b82f6"/>
+      <stop offset="1" stop-color="#a855f7"/>
+    </linearGradient>
+  </defs>
+</svg>

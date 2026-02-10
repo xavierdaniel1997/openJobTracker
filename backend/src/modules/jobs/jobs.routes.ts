@@ -1,10 +1,10 @@
 import { Router } from 'express';
 import { createJob, getJobs, getJob, deleteJob } from './jobs.controller';
-// import { authenticate } from '../../shared/middleware'; // To be implemented
+import { authenticateToken } from '../../middleware/auth.middleware';
 
 const router = Router();
 
-// router.use(authenticate);
+router.use(authenticateToken); // Protect all job routes
 
 router.post('/', createJob);
 router.get('/', getJobs);

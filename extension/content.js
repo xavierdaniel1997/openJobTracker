@@ -34,6 +34,48 @@ function waitFor(selector, timeout = 6000) {
   });
 }
 
+// Parse location string into city, state, country components
+function parseLocation(locationStr) {
+  if (!locationStr) return { city: null, state: null, country: null, fullLocation: null };
+
+  const location = locationStr.trim();
+  const parts = location.split(',').map(p => p.trim()).filter(p => p);
+
+  let city = null;
+  let state = null;
+  let country = null;
+
+  if (parts.length === 1) {
+    // Just one part - could be city or "Remote" or country
+    if (location.toLowerCase().includes('remote')) {
+      city = 'Remote';
+    } else {
+      city = parts[0];
+    }
+  } else if (parts.length === 2) {
+    // Two parts: likely "City, State" or "City, Country"
+    city = parts[0];
+    // Check if second part looks like a state (2-3 letters) or country
+    if (parts[1].length <= 3) {
+      state = parts[1];
+    } else {
+      country = parts[1];
+    }
+  } else if (parts.length >= 3) {
+    // Three or more parts: "City, State, Country"
+    city = parts[0];
+    state = parts[1];
+    country = parts[2];
+  }
+
+  return {
+    city,
+    state,
+    country,
+    fullLocation: location
+  };
+}
+
 // ================================
 // LINKEDIN
 // ================================
@@ -67,10 +109,11 @@ async function scrapeLinkedIn() {
     document.querySelector('a[href*="/company/"]')?.textContent.trim() ||
     null;
 
-  const jobLocation =
-    [...document.querySelectorAll("span")]
-      .map(el => el.textContent.trim())
-      .find(t => t.includes(",") && t.length < 60) || null;
+  const locationStr = [...document.querySelectorAll("span")]
+    .map(el => el.textContent.trim())
+    .find(t => t.includes(",") && t.length < 60) || null;
+
+  const locationData = parseLocation(locationStr);
 
   // Extract salary/compensation
   const salaryText = [...document.querySelectorAll("span")]
@@ -136,7 +179,10 @@ async function scrapeLinkedIn() {
     jobId,
     title,
     company,
-    location: jobLocation,
+    location: locationData.fullLocation,
+    city: locationData.city,
+    state: locationData.state,
+    country: locationData.country,
     salary: salaryText,
     jobType,
     experienceLevel,
@@ -182,8 +228,9 @@ async function scrapeIndeed() {
 
   // Extract location
   const locationEl = document.querySelector('div[data-testid="inlineHeader-companyLocation"]');
-  const jobLocation = locationEl?.textContent?.trim() || null;
-  console.log("📍 Location:", jobLocation);
+  const locationStr = locationEl?.textContent?.trim() || null;
+  const locationData = parseLocation(locationStr);
+  console.log("📍 Location:", locationData);
 
   // Extract salary
   const salaryEl = document.querySelector('#salaryInfoAndJobType span.css-1oc7tea');
@@ -226,7 +273,10 @@ async function scrapeIndeed() {
     jobId,
     title,
     company,
-    location: jobLocation,
+    location: locationData.fullLocation,
+    city: locationData.city,
+    state: locationData.state,
+    country: locationData.country,
     salary,
     jobType,
     description,
@@ -280,8 +330,9 @@ async function scrapeNaukri() {
   const locationEl = document.querySelector('span[class*="jhc__location"] a') ||
     document.querySelector('[class*="jhc__loc"] span') ||
     document.querySelector('[class*="jhc__loc"]');
-  const jobLocation = locationEl?.textContent?.trim() || null;
-  console.log("📍 Location:", jobLocation);
+  const locationStr = locationEl?.textContent?.trim() || null;
+  const locationData = parseLocation(locationStr);
+  console.log("📍 Location:", locationData);
 
   // Extract salary
   const salaryEl = document.querySelector('[class*="jhc__salary"] span');
@@ -327,7 +378,10 @@ async function scrapeNaukri() {
     jobId,
     title,
     company,
-    location: jobLocation,
+    location: locationData.fullLocation,
+    city: locationData.city,
+    state: locationData.state,
+    country: locationData.country,
     salary,
     experience,
     description,
@@ -362,9 +416,9 @@ async function scrapeGlassdoor() {
     document.querySelector('[data-test="employer-name"]')
       ?.textContent.trim() || null;
 
-  const jobLocation =
-    document.querySelector('[data-test="location"]')
-      ?.textContent.trim() || null;
+  const locationStr = document.querySelector('[data-test="location"]')
+    ?.textContent.trim() || null;
+  const locationData = parseLocation(locationStr);
 
   // Extract salary estimate
   const salary =
@@ -399,7 +453,10 @@ async function scrapeGlassdoor() {
     jobId,
     title,
     company,
-    location: jobLocation,
+    location: locationData.fullLocation,
+    city: locationData.city,
+    state: locationData.state,
+    country: locationData.country,
     salary,
     rating,
     jobType,

@@ -6,6 +6,27 @@ export class JobsService {
   async create(userId: number, data: z.infer<typeof jobSchema>) {
     const { title, company, platform, location, salary, job_url, status, description, hr_name, hr_email, hr_phone, posted_date } = data;
     
+    // Check if job exists
+    const existingJob = await pool.query(
+      'SELECT * FROM jobs WHERE user_id = $1 AND job_url = $2',
+      [userId, job_url]
+    );
+
+    if (existingJob.rows.length > 0) {
+      // Update existing job
+      const jobId = existingJob.rows[0].id;
+      const result = await pool.query(
+        `UPDATE jobs SET
+          title = $1, company = $2, platform = $3, location = $4, salary = $5, 
+          status = $6, description = $7, hr_name = $8, hr_email = $9, hr_phone = $10, posted_date = $11, updated_at = NOW()
+         WHERE id = $12 AND user_id = $13
+         RETURNING *`,
+        [title, company, platform, location, salary, status, description, hr_name, hr_email, hr_phone, posted_date, jobId, userId]
+      );
+      return result.rows[0];
+    }
+
+    // Insert new job
     const result = await pool.query(
       `INSERT INTO jobs (
         user_id, title, company, platform, location, salary, job_url, status, description, hr_name, hr_email, hr_phone, posted_date
