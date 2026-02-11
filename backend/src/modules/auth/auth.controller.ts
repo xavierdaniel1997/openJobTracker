@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import { AuthService } from './auth.service';
 import { registerSchema, loginSchema } from './auth.schema';
+import { AuthRequest } from '../../middleware/auth.middleware';
 
 const authService = new AuthService();
 
@@ -33,5 +34,19 @@ export const refreshToken = async (req: Request, res: Response) => {
     res.json(tokens);
   } catch (error: any) {
     res.status(403).json({ error: error.message });
+  }
+};
+
+export const getCurrentUser = async (req: AuthRequest, res: Response) => {
+  try {
+    const userId = req.user?.id;
+    if (!userId) {
+      return res.status(401).json({ error: 'Unauthorized' });
+    }
+    
+    const user = await authService.getUserById(userId);
+    res.json(user);
+  } catch (error: any) {
+    res.status(404).json({ error: error.message });
   }
 };

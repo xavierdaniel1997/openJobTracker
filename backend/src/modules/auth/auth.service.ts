@@ -74,4 +74,17 @@ export class AuthService {
       throw new Error('Invalid refresh token');
     }
   }
+
+  async getUserById(id: number) {
+    const result = await pool.query(
+      'SELECT id, email, name, created_at FROM users WHERE id = $1',
+      [id]
+    );
+    
+    if (result.rows.length === 0) {
+      throw new Error('User not found');
+    }
+    
+    return result.rows[0];
+  }
 }
