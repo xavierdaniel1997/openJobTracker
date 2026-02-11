@@ -8,7 +8,10 @@
     "https://www.linkedin.com/*",
     "https://www.indeed.com/*",
     "https://www.naukri.com/*",
-    "https://www.glassdoor.com/*"
+    "https://www.glassdoor.com/*",
+    "https://www.glassdoor.co.in/*",
+    "https://www.glassdoor.co.uk/*",
+    "https://www.glassdoor.ca/*"
   ],
   "action": {
     "default_popup": "popup.html",
@@ -29,7 +32,10 @@
         "https://www.linkedin.com/*",
         "https://www.indeed.com/*",
         "https://www.naukri.com/*",
-        "https://www.glassdoor.com/*"
+        "https://www.glassdoor.com/*",
+        "https://www.glassdoor.co.in/*",
+        "https://www.glassdoor.co.uk/*",
+        "https://www.glassdoor.ca/*"
       ],
       "js": ["content.js"],
       "run_at": "document_idle"

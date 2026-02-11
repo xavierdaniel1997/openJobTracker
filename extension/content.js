@@ -401,54 +401,188 @@ async function scrapeNaukri() {
 // GLASSDOOR
 // ================================
 async function scrapeGlassdoor() {
-  await waitFor("h1");
+  console.log("🔵 Starting Glassdoor scraper...");
+  console.log("📍 Current URL:", window.location.href);
 
-  const jobId =
-    window.location.pathname.match(/jobListingId=(\d+)/)?.[1] ||
-    window.location.pathname.split("_").pop();
+  // Determine if we're on a search results page or a job detail page
+  const isSearchResults = window.location.pathname.includes('Job/') || window.location.search.includes('SRCH_');
+  const isJobDetail = window.location.pathname.includes('job-listing/') || window.location.search.includes('jl=');
 
-  if (!jobId) return null;
+  console.log("🔍 Page type - Search Results:", isSearchResults, "| Job Detail:", isJobDetail);
 
-  const title =
-    document.querySelector("h1")?.textContent.trim() || null;
+  // Wait for job cards to load (works for both list and detail view)
+  const jobCardSelector = '.JobCard_jobTitle__GLyJ1, [data-test="job-title"], .JobsList_jobListItem__wjTHv';
+  await waitFor(jobCardSelector, 8000);
 
-  const company =
-    document.querySelector('[data-test="employer-name"]')
-      ?.textContent.trim() || null;
+  // Extract job ID from URL or data attribute
+  let jobId = null;
+  let selectedJobCard = null;
 
-  const locationStr = document.querySelector('[data-test="location"]')
-    ?.textContent.trim() || null;
+  // Try URL parameter first (e.g., ?jl=1010029421890)
+  const urlParams = new URLSearchParams(window.location.search);
+  jobId = urlParams.get('jl');
+
+  // If on search results, find the selected job card
+  if (!jobId && isSearchResults) {
+    console.log("🔍 Searching for selected job in list view...");
+    selectedJobCard = document.querySelector('.JobsList_jobListItem__wjTHv.JobsList_selected__nFuMW');
+
+    if (selectedJobCard) {
+      jobId = selectedJobCard.dataset.jobid;
+      console.log("✅ Found selected job:", jobId);
+    } else {
+      console.warn("⚠️ No job is selected in the list. Please click on a job first.");
+      return {
+        error: "No job selected",
+        message: "Please click on a job in the list to view its details before saving."
+      };
+    }
+  }
+
+  // Try from data-jobid attribute if still not found
+  if (!jobId) {
+    const jobListItem = document.querySelector('[data-jobid]');
+    jobId = jobListItem?.dataset.jobid;
+  }
+
+  // Try from job listing link
+  if (!jobId) {
+    const jobLink = document.querySelector('[href*="jl="]');
+    if (jobLink) {
+      const match = jobLink.href.match(/jl=(\d+)/);
+      jobId = match?.[1];
+    }
+  }
+
+  console.log("📌 Glassdoor Job ID:", jobId);
+
+  if (!jobId) {
+    console.error("❌ No job ID found");
+    return {
+      error: "No job ID found",
+      message: "Could not identify a job on this page. Make sure you've clicked on a job listing."
+    };
+  }
+
+  // Define search scope: use selected card if in list view, otherwise search whole document
+  const searchScope = selectedJobCard || document;
+
+  // Helper function to search within scope
+  const findInScope = (selectors) => {
+    for (const selector of selectors) {
+      const element = searchScope.querySelector(selector);
+      if (element) return element;
+    }
+    return null;
+  };
+
+  // Extract title - updated selectors for current DOM structure
+  const titleEl = findInScope([
+    `#job-title-${jobId}`,
+    '.JobCard_jobTitle__GLyJ1',
+    '[data-test="job-title"]',
+    'h1'
+  ]);
+  const title = titleEl?.textContent?.trim() || null;
+  console.log("📝 Title:", title);
+
+  // Extract company name - updated selectors
+  const companyEl = findInScope([
+    `#job-employer-${jobId}`,
+    '.EmployerProfile_compactEmployerName__9MGcV',
+    '[data-test="employer-name"]'
+  ]);
+  const company = companyEl?.textContent?.trim() || null;
+  console.log("🏢 Company:", company);
+
+  // Extract location - updated selectors
+  const locationEl = findInScope([
+    `#job-location-${jobId}`,
+    '.JobCard_location__Ds1fM',
+    '[data-test="emp-location"]',
+    '[data-test="location"]'
+  ]);
+  const locationStr = locationEl?.textContent?.trim() || null;
   const locationData = parseLocation(locationStr);
+  console.log("📍 Location:", locationData);
 
-  // Extract salary estimate
-  const salary =
-    document.querySelector('[data-test="detailSalary"]')?.textContent.trim() ||
-    document.querySelector('.salary')?.textContent.trim() ||
-    [...document.querySelectorAll('div')].find(el =>
-      /\$\d+K?\s*-\s*\$\d+K?/i.test(el.textContent)
-    )?.textContent.trim() || null;
+  // Extract salary estimate - updated selectors
+  const salaryEl = findInScope([
+    `#job-salary-${jobId}`,
+    '.JobCard_salaryEstimate__QpbTW',
+    '[data-test="detailSalary"]'
+  ]);
+  const salary = salaryEl?.textContent?.trim() || null;
+  console.log("💰 Salary:", salary);
 
-  // Extract company rating
-  const rating =
-    document.querySelector('[data-test="rating"]')?.textContent.trim() ||
-    document.querySelector('.rating')?.textContent.trim() || null;
+  // Extract company rating - look for rating display
+  let rating = null;
+  const ratingEl = document.querySelector('[data-test="rating"]') ||
+    [...document.querySelectorAll('div, span')].find(el =>
+      /^\d\.\d$/.test(el.textContent?.trim())
+    );
+  if (ratingEl) {
+    rating = ratingEl.textContent.trim();
+  }
+  console.log("⭐ Rating:", rating);
 
-  // Extract job type
-  const jobType = [...document.querySelectorAll('div, span')].find(el =>
-    /(full-time|part-time|contract|temporary|internship)/i.test(el.textContent)
-  )?.textContent.trim() || null;
+  // Check for Easy Apply badge - search within scope
+  const hasEasyApply = !!findInScope(['[aria-label="Easy Apply"]', '.JobCard_easyApplyTag__5vlo5']);
+  console.log("⚡ Easy Apply:", hasEasyApply);
 
-  // Extract job description
-  const descriptionEl = document.querySelector('[data-test="description"]') ||
+  // Extract job type from tags or badges
+  let jobType = null;
+  const badgeElements = selectedJobCard
+    ? selectedJobCard.querySelectorAll('.tag_TagContainer__mG5or, [role="contentinfo"]')
+    : document.querySelectorAll('.tag_TagContainer__mG5or, [role="contentinfo"]');
+
+  const badgeText = [...badgeElements]
+    .map(el => el.textContent?.trim())
+    .join(' ');
+
+  const jobTypeMatch = badgeText.match(/(full-time|part-time|contract|temporary|internship|remote)/i);
+  if (jobTypeMatch) {
+    jobType = jobTypeMatch[1];
+  }
+  console.log("⏰ Job Type:", jobType);
+
+  // Extract job description - try multiple possible containers
+  // Description is typically only in detail view, not list view
+  let description = null;
+  const descriptionEl =
+    document.querySelector('[data-test="description"]') ||
+    document.querySelector('.JobDetails_jobDescription__uW_fK') ||
+    document.querySelector('[class*="description"]') ||
     document.querySelector('.desc');
-  const description = descriptionEl?.textContent.trim().substring(0, 1000) || null;
 
-  // Extract posted date
-  const postedText = [...document.querySelectorAll('div, span')]
-    .map(el => el.textContent.trim())
-    .find(t => /(posted|listed)\s+(\d+[dh]|\d+\s+(hour|day|week)s?\s+ago)/i.test(t)) || null;
+  if (descriptionEl) {
+    description = descriptionEl.textContent?.trim().substring(0, 1000) || null;
+  }
+  console.log("📄 Description length:", description?.length || 0);
 
-  return {
+  // Extract posted date/age - updated for "24h", "7d" format
+  let postedDate = null;
+  const listingAgeEl = findInScope([
+    '.JobCard_listingAge__jJsuc',
+    '[data-test="job-age"]'
+  ]);
+
+  if (listingAgeEl) {
+    postedDate = listingAgeEl.textContent?.trim();
+  }
+
+  // Fallback to searching text nodes
+  if (!postedDate) {
+    const postedText = [...document.querySelectorAll('div, span')]
+      .map(el => el.textContent?.trim())
+      .find(t => t && /(posted|listed|ago|\d+[hdw])/i.test(t));
+    if (postedText) {
+      postedDate = postedText;
+    }
+  }
+  console.log("📅 Posted:", postedDate);
+
+  const result = {
     platform: "glassdoor",
     jobId,
     title,
@@ -460,11 +594,15 @@ async function scrapeGlassdoor() {
     salary,
     rating,
     jobType,
+    hasEasyApply,
     description,
-    postedDate: postedText,
+    postedDate,
     jobUrl: window.location.href,
     scrapedAt: new Date().toISOString()
   };
+
+  console.log("✅ Glassdoor scraping complete:", result);
+  return result;
 }
 
 // ================================
