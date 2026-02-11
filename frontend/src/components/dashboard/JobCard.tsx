@@ -19,26 +19,39 @@ export const JobCard = ({ job, onClick, onEdit, onDelete }: JobCardProps) => {
     };
 
     return (
-        <Card glass onClick={onClick} className="group relative">
-            <div className="flex justify-between items-start mb-4">
-                <div className="flex gap-3">
-                    <div className="w-12 h-12 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-xl shadow-inner group-hover:scale-110 transition-transform">
+        <div
+            onClick={onClick}
+            className="group relative p-6 rounded-[1.5rem] bg-white/[0.02] border border-white/5 hover:bg-white/[0.04] hover:border-white/10 transition-all duration-300 hover:-translate-y-1 cursor-pointer overflow-hidden"
+        >
+            {/* Hover Glow */}
+            <div className="absolute inset-0 bg-gradient-to-tr from-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
+
+            <div className="relative z-10 flex justify-between items-start mb-6">
+                <div className="flex gap-4">
+                    <div className="w-12 h-12 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center text-xl shadow-inner group-hover:scale-110 group-hover:bg-white/10 transition-all duration-300">
                         {job.company?.[0]?.toUpperCase() || 'J'}
                     </div>
                     <div>
-                        <h4 className="font-bold text-foreground text-lg group-hover:text-primary transition-colors line-clamp-1">{job.title}</h4>
-                        <p className="text-muted text-sm line-clamp-1">{job.company}</p>
+                        <h4 className="font-bold text-white text-lg group-hover:text-white transition-colors line-clamp-1 flex items-center gap-2">
+                            {job.title}
+                            {job.job_url && (
+                                <a href={job.job_url} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()} className="opacity-0 group-hover:opacity-100 transition-opacity text-white/50 hover:text-white">
+                                    <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" /></svg>
+                                </a>
+                            )}
+                        </h4>
+                        <p className="text-text-secondary text-sm line-clamp-1 font-medium">{job.company}</p>
                     </div>
                 </div>
-                <Badge variant={statusVariants[job.status] || 'default'}>
+                <Badge variant={statusVariants[job.status] || 'default'} className="backdrop-blur-md shadow-lg">
                     {job.status.charAt(0).toUpperCase() + job.status.slice(1)}
                 </Badge>
             </div>
 
-            <div className="space-y-2 mb-6">
+            <div className="relative z-10 space-y-3 mb-6">
                 {job.location && (
-                    <div className="flex items-center gap-2 text-xs text-muted">
-                        <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <div className="flex items-center gap-2 text-xs font-medium text-text-secondary group-hover:text-text-muted transition-colors">
+                        <svg className="w-4 h-4 opacity-70" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                         </svg>
@@ -46,8 +59,8 @@ export const JobCard = ({ job, onClick, onEdit, onDelete }: JobCardProps) => {
                     </div>
                 )}
                 {job.salary && (
-                    <div className="flex items-center gap-2 text-xs text-muted">
-                        <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <div className="flex items-center gap-2 text-xs font-medium text-text-secondary group-hover:text-text-muted transition-colors">
+                        <svg className="w-4 h-4 opacity-70" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                         </svg>
                         {job.salary}
@@ -55,14 +68,14 @@ export const JobCard = ({ job, onClick, onEdit, onDelete }: JobCardProps) => {
                 )}
             </div>
 
-            <div className="flex items-center justify-between pt-4 border-t border-white/5 opacity-0 group-hover:opacity-100 transition-opacity">
-                <span className="text-[10px] text-muted uppercase tracking-wider font-semibold">
+            <div className="relative z-10 flex items-center justify-between pt-4 border-t border-white/5 group-hover:border-white/10 transition-colors">
+                <span className="text-[10px] text-text-muted uppercase tracking-wider font-bold">
                     {new Date(job.createdAt).toLocaleDateString()}
                 </span>
-                <div className="flex gap-2">
+                <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-all duration-300 translate-y-2 group-hover:translate-y-0">
                     <button
                         onClick={onEdit}
-                        className="p-1.5 text-muted hover:text-primary hover:bg-primary/10 rounded-lg transition-all"
+                        className="p-2 text-text-secondary hover:text-white hover:bg-white/10 rounded-xl transition-all"
                         title="Edit Job"
                     >
                         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -71,7 +84,7 @@ export const JobCard = ({ job, onClick, onEdit, onDelete }: JobCardProps) => {
                     </button>
                     <button
                         onClick={onDelete}
-                        className="p-1.5 text-muted hover:text-danger hover:bg-danger/10 rounded-lg transition-all"
+                        className="p-2 text-text-secondary hover:text-danger hover:bg-danger/10 rounded-xl transition-all"
                         title="Delete Job"
                     >
                         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -80,6 +93,6 @@ export const JobCard = ({ job, onClick, onEdit, onDelete }: JobCardProps) => {
                     </button>
                 </div>
             </div>
-        </Card>
+        </div>
     );
 };
