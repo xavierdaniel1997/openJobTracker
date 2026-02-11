@@ -97,43 +97,46 @@ export const JobModal = ({ isOpen, onClose, editingJob }: JobModalProps) => {
                         onChange={(e) => setFormData({ ...formData, salary: e.target.value })}
                     />
                     <Input
-                        label="Job URL"
-                        placeholder="https://linkedin.com/jobs/..."
                         value={formData.job_url}
                         onChange={(e) => setFormData({ ...formData, job_url: e.target.value })}
                         required
                     />
                     <div className="space-y-1.5">
-                        <label className="text-sm font-medium text-muted">Status</label>
-                        <select
-                            value={formData.status}
-                            onChange={(e) => setFormData({ ...formData, status: e.target.value as Job['status'] })}
-                            className="w-full h-10 px-3 rounded-xl bg-white/5 border border-white/10 text-foreground focus:border-primary/50 focus:ring-1 focus:ring-primary/50 transition-all outline-none appearance-none"
-                        >
-                            <option value="applied">Applied</option>
-                            <option value="interview">Interview</option>
-                            <option value="offer">Offer</option>
-                            <option value="rejected">Rejected</option>
-                        </select>
+                        <label className="text-xs font-bold text-text-secondary uppercase tracking-widest">Status</label>
+                        <div className="relative">
+                            <select
+                                value={formData.status}
+                                onChange={(e) => setFormData({ ...formData, status: e.target.value as Job['status'] })}
+                                className="w-full h-12 px-4 rounded-xl bg-white/[0.03] border border-white/[0.08] text-white focus:border-white/20 focus:bg-white/[0.05] transition-all outline-none appearance-none font-medium"
+                            >
+                                <option value="applied" className="bg-card text-white">Applied</option>
+                                <option value="interview" className="bg-card text-white">Interview</option>
+                                <option value="offer" className="bg-card text-white">Offer</option>
+                                <option value="rejected" className="bg-card text-white">Rejected</option>
+                            </select>
+                            <svg className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-text-muted pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                            </svg>
+                        </div>
                     </div>
                 </div>
 
                 <div className="space-y-1.5">
-                    <label className="text-sm font-medium text-muted">Description / Notes</label>
+                    <label className="text-xs font-bold text-text-secondary uppercase tracking-widest">Description / Notes</label>
                     <textarea
                         rows={4}
-                        placeholder="Add some details about the job..."
+                        placeholder="Add some details about the job, interview dates, or recruiter contacts..."
                         value={formData.description}
                         onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                        className="w-full p-4 rounded-xl bg-white/5 border border-white/10 text-foreground focus:border-primary/50 focus:ring-1 focus:ring-primary/50 transition-all outline-none resize-none"
+                        className="w-full p-4 rounded-xl bg-white/[0.03] border border-white/[0.08] text-white focus:border-white/20 focus:bg-white/[0.05] transition-all outline-none resize-none font-medium placeholder:text-text-muted"
                     />
                 </div>
 
-                <div className="flex justify-end gap-3 pt-4 border-t border-white/5">
-                    <Button variant="outline" onClick={onClose} type="button">
+                <div className="flex justify-end gap-3 pt-6 border-t border-white/[0.08]">
+                    <Button variant="outline" onClick={onClose} type="button" className="border-white/10 hover:bg-white/5 hover:text-white">
                         Cancel
                     </Button>
-                    <Button type="submit" isLoading={isLoading}>
+                    <Button type="submit" isLoading={isLoading} className="bg-white text-black hover:bg-gray-200">
                         {editingJob ? 'Save Changes' : 'Track Application'}
                     </Button>
                 </div>
