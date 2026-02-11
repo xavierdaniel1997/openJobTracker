@@ -3,49 +3,80 @@
 @theme {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  --color-surface: var(--surface);
   --color-card: var(--card);
   --color-card-hover: var(--card-hover);
   --color-primary: var(--primary);
   --color-primary-hover: var(--primary-hover);
+  --color-text-secondary: var(--text-secondary);
   --color-muted: var(--text-muted);
   --color-border: var(--border);
+  --color-border-hover: var(--border-hover);
+  --color-glass-bg: var(--glass-bg);
+  --color-glass-border: var(--glass-border);
   --color-success: var(--success);
   --color-danger: var(--danger);
   --color-warning: var(--warning);
 }
 
 :root {
-  --background: #0f172a;
-  --foreground: #f8fafc;
-  --card: #1e293b;
-  --card-hover: #334155;
-  --primary: #3b82f6;
-  --primary-hover: #2563eb;
-  --text-muted: #94a3b8;
-  --border: #334155;
-  --success: #22c55e;
-  --danger: #ef4444;
-  --warning: #f59e0b;
+  --background: #000000;
+  --foreground: #ffffff;
+  --surface: #0a0a0a;
+  --card: #141414;
+  --card-hover: #1a1a1a;
+  --primary: #ffffff;
+  --primary-hover: #e8e8e8;
+  --text-secondary: #8a8a8a;
+  --text-muted: #5a5a5a;
+  --border: #242424;
+  --border-hover: #3a3a3a;
+  --glass-bg: rgba(255, 255, 255, 0.03);
+  --glass-border: rgba(255, 255, 255, 0.08);
+  --success: #4ade80;
+  --danger: #f87171;
+  --warning: #fbbf24;
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', sans-serif;
   -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 @layer utilities {
   .glass {
-    @apply bg-white/5 backdrop-blur-xl border border-white/10;
+    @apply bg-white/[0.03] backdrop-blur-xl border border-white/[0.08];
   }
 
   .glass-dark {
-    @apply bg-black/20 backdrop-blur-xl border border-white/5;
+    @apply bg-black/40 backdrop-blur-xl border border-white/[0.05];
+  }
+
+  .glass-card {
+    @apply bg-white/[0.03] backdrop-blur-2xl border border-white/[0.08] rounded-3xl;
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.4);
+  }
+
+  .glass-card-hover {
+    @apply transition-all duration-300 hover:bg-white/[0.05] hover:border-white/[0.12] hover:-translate-y-1;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(255, 255, 255, 0.1);
+  }
+
+  .btn-cred {
+    @apply bg-white text-black font-bold rounded-2xl px-8 py-4 transition-all duration-300;
+    @apply hover:-translate-y-1 hover:shadow-2xl;
+    box-shadow: 0 4px 16px rgba(255, 255, 255, 0.2);
+  }
+
+  .btn-cred:hover {
+    box-shadow: 0 8px 24px rgba(255, 255, 255, 0.3);
   }
 
   .text-gradient {
-    @apply bg-clip-text text-transparent bg-gradient-to-r from-primary to-[#a855f7];
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-300;
   }
 
   .animate-float {
@@ -55,10 +86,17 @@ body {
   .animate-pulse-slow {
     animation: pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite;
   }
+
+  .animate-slide-up {
+    animation: slideUp 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .animate-fade-in {
+    animation: fadeIn 0.6s ease-out;
+  }
 }
 
 @keyframes float {
-
   0%,
   100% {
     transform: translateY(0);
@@ -70,7 +108,6 @@ body {
 }
 
 @keyframes pulse-soft {
-
   0%,
   100% {
     opacity: 1;
@@ -79,4 +116,49 @@ body {
   50% {
     opacity: 0.8;
   }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Scrollbar Styling */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--border-hover);
+}
+
+/* Selection */
+::selection {
+  background: rgba(255, 255, 255, 0.2);
+  color: var(--foreground);
 }

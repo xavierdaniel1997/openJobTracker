@@ -13,12 +13,15 @@ export const Card = ({ children, className = '', onClick, hover = true, glass = 
         <div
             onClick={onClick}
             className={`
-                rounded-2xl border border-border bg-card p-6 transition-all duration-300
-                ${hover ? 'hover:border-primary/50 hover:shadow-xl hover:shadow-primary/5 hover:-translate-y-1' : ''}
-                ${glass ? 'bg-white/5 backdrop-blur-xl border-white/10' : ''}
+                rounded-3xl border bg-card p-6 transition-all duration-300
+                ${glass ? 'bg-white/[0.03] backdrop-blur-2xl border-white/[0.08]' : 'border-white/[0.08]'}
+                ${hover ? 'hover:border-white/[0.15] hover:shadow-2xl hover:-translate-y-1 hover:bg-white/[0.05]' : ''}
                 ${onClick ? 'cursor-pointer' : ''}
                 ${className}
             `}
+            style={{
+                boxShadow: glass ? '0 4px 24px rgba(0, 0, 0, 0.4)' : undefined
+            }}
         >
             {children}
         </div>
