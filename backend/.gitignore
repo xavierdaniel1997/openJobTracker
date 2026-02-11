@@ -1,15 +1,4 @@
-# Dependencies
-node_modules/
-npm-debug.log
-yarn-error.log
-
-# Environment variables
+/node_modules
 .env
-
-# System
-.DS_Store
-Thumbs.db
-
-# IDEs
-.vscode/
-.idea/
+dist
+/src/generated/prisma

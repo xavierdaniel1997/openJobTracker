@@ -1,25 +1,44 @@
-import express from 'express';
-import cors from 'cors';
-import dotenv from 'dotenv';
-import { Pool } from 'pg';
-import db from './shared/db';
+import "dotenv/config";
+import express from "express";
+import {Application, Request, Response} from "express";
+import apiRoutes from "./routes/api.routes";
+import { connectDB } from "./config/db";
+import cors from "cors";
 
-import routes from './routes';
 
-dotenv.config();
 
-const app = express();
-const PORT = process.env.PORT || 5000;
+const app: Application = express();
 
-app.use(cors());
+const PORT : Number = 5000;
+
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
-app.get('/', (req, res) => {
-  res.json({ message: 'OpenJobTracker API is running (Modular TS) 🚀' });
+
+const allowedOrigin = process.env.CLIENT_ORIGIN || "http://localhost:3000";
+
+app.use(cors({
+    origin: allowedOrigin,
+    credentials: true,
+    allowedHeaders: ['Content-Type', 'Authorization'],
+}));
+
+
+
+app.get("/", (req: Request, res: Response) => {
+    res.status(200).json({message: "Welcome to the Open Job Tracker API!"});
 });
 
-app.use('/api', routes);
+app.use("/api", apiRoutes);
 
-app.listen(PORT, () => {
-  console.log(`Server running on http://localhost:${PORT}`);
-});
+
+
+const startServer = async () => {
+  await connectDB(); 
+
+  app.listen(PORT, () => {
+    console.log(`🚀 Server running on http://localhost:${PORT}`);
+  });
+};
+
+startServer()

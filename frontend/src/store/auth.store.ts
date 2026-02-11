@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import api from '@/lib/api';
+import axios from 'axios';
 
 interface User {
   id: number;
@@ -29,6 +30,7 @@ export const useAuthStore = create<AuthState>((set) => ({
 
   register: async (credentials) => {
     const { data } = await api.post('/auth/register', credentials);
+    // const {data} = await axios.post('http://localhost:8000/api/auth/register', credentials)
     localStorage.setItem('accessToken', data.accessToken);
     localStorage.setItem('refreshToken', data.refreshToken);
     set({ user: data.user, isAuthenticated: true });

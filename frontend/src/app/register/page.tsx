@@ -65,6 +65,7 @@ export default function RegisterPage() {
 
             router.push('/dashboard');
         } catch (err: any) {
+            console.log("error from the register page", err);
             setErrors({
                 general: err.response?.data?.message || 'Registration failed. Please try again.'
             });
