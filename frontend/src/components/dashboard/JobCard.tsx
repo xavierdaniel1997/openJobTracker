@@ -12,7 +12,7 @@ interface JobCardProps {
 
 export const JobCard = ({ job, onClick, onEdit, onDelete }: JobCardProps) => {
     const statusVariants: Record<string, any> = {
-        applied: 'primary',
+        applied: 'applied',
         interview: 'warning',
         offer: 'success',
         rejected: 'danger',
@@ -37,11 +37,6 @@ export const JobCard = ({ job, onClick, onEdit, onDelete }: JobCardProps) => {
         >
             <div className="relative z-10 flex justify-between items-start mb-3">
                 <div className="flex gap-4 w-full">
-                    {/* Extension doesn't show logo? It shows title/company/platform. But dashboard usually has logos. We'll keep logo but make it subtle? 
-                       Extension popup has NO logo in the list items (see popup.html JS). It only has text.
-                       User said "exact like extension". But removing logo might make it too plain for dashboard.
-                       I'll keep logo but style it to fit.
-                    */}
                     <div className="flex-1 min-w-0">
                         <div className="flex justify-between items-start">
                             <h4 className="font-semibold text-white text-[16px] leading-[1.4] mb-1.5 line-clamp-1 flex items-center gap-2">

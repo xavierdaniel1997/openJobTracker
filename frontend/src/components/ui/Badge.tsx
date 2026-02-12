@@ -1,6 +1,6 @@
 import React from 'react';
 
-type BadgeVariant = 'default' | 'primary' | 'success' | 'warning' | 'danger' | 'info';
+type BadgeVariant = 'default' | 'primary' | 'success' | 'warning' | 'danger' | 'info' | 'applied';
 
 interface BadgeProps {
     children: React.ReactNode;
@@ -16,6 +16,7 @@ export const Badge = ({ children, variant = 'default', className = '' }: BadgePr
         warning: 'bg-warning/15 text-warning border-warning/30',
         danger: 'bg-danger/15 text-danger border-danger/30',
         info: 'bg-white/10 text-text-secondary border-white/20',
+        applied: 'bg-blue-500/15 text-blue-400 border-blue-500/30',
     };
 
     return (

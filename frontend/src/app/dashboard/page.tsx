@@ -8,6 +8,7 @@ import { useJobStore, Job } from '@/store/job.store';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { JobCard } from '@/components/dashboard/JobCard';
+import { KanbanBoard } from '@/components/dashboard/KanbanBoard';
 import { JobModal } from '@/components/dashboard/JobModal';
 import { ConfirmModal } from '@/components/ui/ConfirmModal';
 import AuthGuard from '@/components/auth/AuthGuard';
@@ -17,6 +18,7 @@ export default function DashboardPage() {
     const { logout, user } = useAuthStore();
     const { jobs, fetchJobs, deleteJob, isLoading } = useJobStore();
 
+    const [viewMode, setViewMode] = useState<'list' | 'kanban'>('list');
     const [searchQuery, setSearchQuery] = useState('');
     const [filterStatus, setFilterStatus] = useState<string>('all');
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -119,15 +121,15 @@ export default function DashboardPage() {
                     {/* Stats Grid */}
                     <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 mb-16">
                         {[
-                            { label: 'Total', value: stats.total, icon: '💼' },
-                            { label: 'Applied', value: stats.applied, icon: '⚡' },
-                            { label: 'Interviews', value: stats.interviews, icon: '🎙️' },
-                            { label: 'Offers', value: stats.offers, icon: '🎉' },
+                            { label: 'Total', value: stats.total, icon: '💼', color: 'text-white', bg: 'hover:bg-white/[0.04]', border: 'hover:border-white/20' },
+                            { label: 'Applied', value: stats.applied, icon: '⚡', color: 'text-blue-400', bg: 'hover:bg-blue-500/5', border: 'hover:border-blue-500/20' },
+                            { label: 'Interviews', value: stats.interviews, icon: '🎙️', color: 'text-amber-400', bg: 'hover:bg-amber-500/5', border: 'hover:border-amber-500/20' },
+                            { label: 'Offers', value: stats.offers, icon: '🎉', color: 'text-emerald-400', bg: 'hover:bg-emerald-500/5', border: 'hover:border-emerald-500/20' },
                         ].map((stat, i) => (
-                            <div key={i} className="group relative p-6 rounded-3xl bg-white/[0.02] border border-white/5 hover:bg-white/[0.04] hover:border-white/10 transition-all duration-300 hover:-translate-y-1">
+                            <div key={i} className={`group relative p-6 rounded-3xl bg-white/[0.02] border border-white/5 transition-all duration-300 hover:-translate-y-1 ${stat.bg} ${stat.border}`}>
                                 <p className="text-text-secondary text-xs font-bold uppercase tracking-widest mb-4">{stat.label}</p>
-                                <h3 className="text-4xl font-black text-white mb-2">{stat.value}</h3>
-                                <div className="absolute right-6 bottom-6 text-2xl opacity-20 group-hover:opacity-40 group-hover:scale-110 transition-all duration-300 grayscale group-hover:grayscale-0">
+                                <h3 className={`text-4xl font-black mb-2 ${stat.color}`}>{stat.value}</h3>
+                                <div className="absolute right-6 bottom-6 text-2xl opacity-20 group-hover:opacity-100 group-hover:scale-110 transition-all duration-300">
                                     {stat.icon}
                                 </div>
                             </div>
@@ -151,33 +153,70 @@ export default function DashboardPage() {
                             ))}
                         </div>
 
-                        <div className="relative w-full md:w-80 group">
-                            <input
-                                type="text"
-                                placeholder="Search applications..."
-                                value={searchQuery}
-                                onChange={(e) => setSearchQuery(e.target.value)}
-                                className="w-full h-12 pl-12 pr-6 rounded-2xl bg-white/[0.03] border border-white/5 text-white placeholder:text-text-muted focus:border-white/20 focus:bg-white/[0.05] transition-all outline-none text-sm"
-                            />
-                            <svg className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-text-muted group-focus-within:text-white transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                            </svg>
+                        <div className="flex items-center gap-4 w-full md:w-auto">
+                            <div className="flex items-center gap-1 p-1 bg-white/[0.03] rounded-2xl border border-white/5">
+                                <button
+                                    onClick={() => setViewMode('list')}
+                                    className={`p-2 rounded-xl transition-all duration-300 ${viewMode === 'list'
+                                        ? 'bg-white text-black shadow-lg shadow-white/10'
+                                        : 'text-text-secondary hover:text-white hover:bg-white/5'
+                                        }`}
+                                    title="List View"
+                                >
+                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                                    </svg>
+                                </button>
+                                <button
+                                    onClick={() => setViewMode('kanban')}
+                                    className={`p-2 rounded-xl transition-all duration-300 ${viewMode === 'kanban'
+                                        ? 'bg-white text-black shadow-lg shadow-white/10'
+                                        : 'text-text-secondary hover:text-white hover:bg-white/5'
+                                        }`}
+                                    title="Kanban Board"
+                                >
+                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 00-2-2h-2a2 2 0 00-2 2m0 10V7a2 2 0 012-2h2a2 2 0 012 2m0 10V7" />
+                                    </svg>
+                                </button>
+                            </div>
+
+                            <div className="relative flex-1 md:w-80 group">
+                                <input
+                                    type="text"
+                                    placeholder="Search applications..."
+                                    value={searchQuery}
+                                    onChange={(e) => setSearchQuery(e.target.value)}
+                                    className="w-full h-12 pl-12 pr-6 rounded-2xl bg-white/[0.03] border border-white/5 text-white placeholder:text-text-muted focus:border-white/20 focus:bg-white/[0.05] transition-all outline-none text-sm"
+                                />
+                                <svg className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-text-muted group-focus-within:text-white transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                                </svg>
+                            </div>
                         </div>
                     </div>
 
-                    {/* Jobs Grid */}
+                    {/* Main Board View */}
                     {filteredJobs.length > 0 ? (
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 animate-in fade-in duration-700">
-                            {filteredJobs.map(job => (
-                                <JobCard
-                                    key={job.id}
-                                    job={job}
-                                    onClick={() => handleEdit(job)}
-                                    onEdit={(e) => { e.stopPropagation(); handleEdit(job); }}
-                                    onDelete={(e) => { e.stopPropagation(); handleDeleteRequest(job); }}
-                                />
-                            ))}
-                        </div>
+                        viewMode === 'list' ? (
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 animate-in fade-in duration-700">
+                                {filteredJobs.map(job => (
+                                    <JobCard
+                                        key={job.id}
+                                        job={job}
+                                        onClick={() => handleEdit(job)}
+                                        onEdit={(e) => { e.stopPropagation(); handleEdit(job); }}
+                                        onDelete={(e) => { e.stopPropagation(); handleDeleteRequest(job); }}
+                                    />
+                                ))}
+                            </div>
+                        ) : (
+                            <KanbanBoard
+                                jobs={filteredJobs}
+                                onEdit={handleEdit}
+                                onDelete={handleDeleteRequest}
+                            />
+                        )
                     ) : (
                         <div className="text-center py-32 rounded-[3rem] bg-white/[0.01] border border-dashed border-white/5 animate-in fade-in zoom-in-95 duration-700">
                             <div className="mb-8 opacity-50">

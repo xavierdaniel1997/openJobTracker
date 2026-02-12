@@ -57,15 +57,29 @@ export const useJobStore = create<JobState>((set, get) => ({
     },
 
     updateJob: async (id, updateData) => {
-        set({ isLoading: true, error: null });
+        const previousJobs = get().jobs;
+        
+        // Optimistically update the UI
+        set({
+            jobs: previousJobs.map((job) => 
+                job.id === id ? { ...job, ...updateData } : job
+            )
+        });
+
         try {
             const { data } = await api.patch(`/jobs/${id}`, updateData);
+            // Sync with server data (in case server has auto-generated fields or validation)
             set({
                 jobs: get().jobs.map((job) => (job.id === id ? { ...job, ...data } : job)),
                 isLoading: false,
             });
         } catch (err: any) {
-            set({ error: 'Failed to update job', isLoading: false });
+            // Revert on error
+            set({ 
+                jobs: previousJobs,
+                error: 'Failed to update job', 
+                isLoading: false 
+            });
         }
     },
 
