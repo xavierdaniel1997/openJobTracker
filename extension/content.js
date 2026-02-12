@@ -477,42 +477,69 @@ async function scrapeGlassdoor() {
   };
 
   // Extract title - updated selectors for current DOM structure
-  const titleEl = findInScope([
-    `#job-title-${jobId}`,
-    '.JobCard_jobTitle__GLyJ1',
-    '[data-test="job-title"]',
-    'h1'
-  ]);
+  const titleEl =
+    document.querySelector(`#jd-job-title-${jobId}`) ||
+    document.querySelector('h1[id^="jd-job-title-"]') ||
+    findInScope([
+      `#job-title-${jobId}`,
+      '.JobCard_jobTitle__GLyJ1',
+      '[data-test="job-title"]',
+      'h1'
+    ]);
   const title = titleEl?.textContent?.trim() || null;
   console.log("📝 Title:", title);
 
-  // Extract company name - updated selectors
-  const companyEl = findInScope([
-    `#job-employer-${jobId}`,
-    '.EmployerProfile_compactEmployerName__9MGcV',
-    '[data-test="employer-name"]'
-  ]);
+  // Extract company name - updated selectors for new structure
+  const companyEl =
+    document.querySelector('.EmployerProfile_employerNameHeading__bXBYr h4') ||
+    document.querySelector('.EmployerProfile_compactEmployerName__9MGcV') ||
+    findInScope([
+      `#job-employer-${jobId}`,
+      '[data-test="employer-name"]'
+    ]);
   const company = companyEl?.textContent?.trim() || null;
   console.log("🏢 Company:", company);
 
-  // Extract location - updated selectors
-  const locationEl = findInScope([
-    `#job-location-${jobId}`,
-    '.JobCard_location__Ds1fM',
-    '[data-test="emp-location"]',
-    '[data-test="location"]'
-  ]);
+  // Extract location - updated selectors for new structure
+  const locationEl =
+    document.querySelector('[data-test="location"]') ||
+    document.querySelector('.JobDetails_badgeStyle__xaoxT[data-test="location"]') ||
+    findInScope([
+      `#job-location-${jobId}`,
+      '.JobCard_location__Ds1fM',
+      '[data-test="emp-location"]'
+    ]);
   const locationStr = locationEl?.textContent?.trim() || null;
   const locationData = parseLocation(locationStr);
   console.log("📍 Location:", locationData);
 
-  // Extract salary estimate - updated selectors
-  const salaryEl = findInScope([
-    `#job-salary-${jobId}`,
-    '.JobCard_salaryEstimate__QpbTW',
-    '[data-test="detailSalary"]'
-  ]);
-  const salary = salaryEl?.textContent?.trim() || null;
+  // Extract salary estimate - updated selectors for new structure
+  let salary = null;
+
+  // Try from detail page salary first (jd-salary-{jobId})
+  const detailSalaryEl = document.querySelector(`#jd-salary-${jobId}`) ||
+    document.querySelector('[id^="jd-salary-"]');
+  if (detailSalaryEl) {
+    salary = detailSalaryEl.textContent?.trim() || null;
+  }
+
+  // Try from salary estimate section
+  if (!salary) {
+    const salaryEstimateEl = document.querySelector('.SalaryEstimate_salaryRange__brHFy');
+    if (salaryEstimateEl) {
+      salary = salaryEstimateEl.textContent?.trim() || null;
+    }
+  }
+
+  // Fallback to other selectors
+  if (!salary) {
+    const salaryEl = findInScope([
+      `#job-salary-${jobId}`,
+      '.JobCard_salaryEstimate__QpbTW',
+      '[data-test="detailSalary"]'
+    ]);
+    salary = salaryEl?.textContent?.trim() || null;
+  }
   console.log("💰 Salary:", salary);
 
   // Extract company rating - look for rating display
@@ -544,18 +571,37 @@ async function scrapeGlassdoor() {
   if (jobTypeMatch) {
     jobType = jobTypeMatch[1];
   }
+
+  // Also check in job description for job type
+  if (!jobType) {
+    const jobTypeText = [...document.querySelectorAll('p, div')]
+      .map(el => el.textContent?.trim())
+      .find(t => t && /Job Type:\s*(Full-time|Part-time|Contract)/i.test(t));
+    if (jobTypeText) {
+      const match = jobTypeText.match(/Job Type:\s*(Full-time|Part-time|Contract)/i);
+      jobType = match?.[1];
+    }
+  }
   console.log("⏰ Job Type:", jobType);
 
-  // Extract job description - try multiple possible containers
-  // Description is typically only in detail view, not list view
+  // Extract job description - updated selectors for new structure
   let description = null;
+
+  // Try multiple selectors in order of specificity
   const descriptionEl =
-    document.querySelector('[data-test="description"]') ||
     document.querySelector('.JobDetails_jobDescription__uW_fK') ||
+    document.querySelector('[data-test="description"]') ||
+    document.querySelector('[class*="JobDetails_jobDescription"]') ||
     document.querySelector('[class*="description"]') ||
     document.querySelector('.desc');
 
   if (descriptionEl) {
+    // Remove the blur class if present to get full text
+    const blurClass = 'JobDetails_blurDescription__vN7nh';
+    if (descriptionEl.classList.contains(blurClass)) {
+      descriptionEl.classList.remove(blurClass);
+    }
+
     description = descriptionEl.textContent?.trim().substring(0, 1000) || null;
   }
   console.log("📄 Description length:", description?.length || 0);

@@ -19,10 +19,14 @@ export const JobModal = ({ isOpen, onClose, editingJob }: JobModalProps) => {
         company: '',
         location: '',
         salary: '',
-        job_url: '',
+        jobUrl: '',
         status: 'applied' as Job['status'],
         platform: '',
-        description: '',
+        notes: '',
+        hrName: '',
+        hrEmail: '',
+        hrPhone: '',
+        interviewDate: '',
     });
 
     useEffect(() => {
@@ -32,10 +36,14 @@ export const JobModal = ({ isOpen, onClose, editingJob }: JobModalProps) => {
                 company: editingJob.company,
                 location: editingJob.location || '',
                 salary: editingJob.salary || '',
-                job_url: editingJob.job_url,
+                jobUrl: editingJob.jobUrl || '',
                 status: editingJob.status,
                 platform: editingJob.platform || '',
-                description: editingJob.description || '',
+                notes: editingJob.notes || '',
+                hrName: editingJob.hrName || '',
+                hrEmail: editingJob.hrEmail || '',
+                hrPhone: editingJob.hrPhone || '',
+                interviewDate: editingJob.interviewDate ? new Date(editingJob.interviewDate).toISOString().slice(0, 16) : '',
             });
         } else {
             setFormData({
@@ -43,10 +51,14 @@ export const JobModal = ({ isOpen, onClose, editingJob }: JobModalProps) => {
                 company: '',
                 location: '',
                 salary: '',
-                job_url: '',
+                jobUrl: '',
                 status: 'applied',
                 platform: '',
-                description: '',
+                notes: '',
+                hrName: '',
+                hrEmail: '',
+                hrPhone: '',
+                interviewDate: '',
             });
         }
     }, [editingJob, isOpen]);
@@ -97,16 +109,24 @@ export const JobModal = ({ isOpen, onClose, editingJob }: JobModalProps) => {
                         onChange={(e) => setFormData({ ...formData, salary: e.target.value })}
                     />
                     <Input
-                        value={formData.job_url}
-                        onChange={(e) => setFormData({ ...formData, job_url: e.target.value })}
+                        label="Job URL"
+                        placeholder="https://..."
+                        value={formData.jobUrl}
+                        onChange={(e) => setFormData({ ...formData, jobUrl: e.target.value })}
                         required
+                    />
+                    <Input
+                        label="Platform"
+                        placeholder="e.g. LinkedIn"
+                        value={formData.platform}
+                        onChange={(e) => setFormData({ ...formData, platform: e.target.value })}
                     />
                     <div className="space-y-1.5">
                         <label className="text-xs font-bold text-text-secondary uppercase tracking-widest">Status</label>
                         <div className="relative">
                             <select
                                 value={formData.status}
-                                onChange={(e) => setFormData({ ...formData, status: e.target.value as Job['status'] })}
+                                onChange={(e) => setFormData({ ...formData, status: e.target.value })}
                                 className="w-full h-12 px-4 rounded-xl bg-white/[0.03] border border-white/[0.08] text-white focus:border-white/20 focus:bg-white/[0.05] transition-all outline-none appearance-none font-medium"
                             >
                                 <option value="applied" className="bg-card text-white">Applied</option>
@@ -121,16 +141,54 @@ export const JobModal = ({ isOpen, onClose, editingJob }: JobModalProps) => {
                     </div>
                 </div>
 
+                <div className="p-4 rounded-xl bg-white/[0.02] border border-white/5 space-y-4">
+                    <h3 className="text-sm font-bold text-text-secondary uppercase tracking-widest flex items-center gap-2">
+                        <span className="text-lg">👤</span> Recruiter Info
+                    </h3>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <Input
+                            label="Name"
+                            placeholder="Recruiter Name"
+                            value={formData.hrName}
+                            onChange={(e) => setFormData({ ...formData, hrName: e.target.value })}
+                        />
+                        <Input
+                            label="Email"
+                            placeholder="hr@company.com"
+                            value={formData.hrEmail}
+                            onChange={(e) => setFormData({ ...formData, hrEmail: e.target.value })}
+                        />
+                        <Input
+                            label="Phone"
+                            placeholder="+1 234..."
+                            value={formData.hrPhone}
+                            onChange={(e) => setFormData({ ...formData, hrPhone: e.target.value })}
+                        />
+                    </div>
+                </div>
+
                 <div className="space-y-1.5">
                     <label className="text-xs font-bold text-text-secondary uppercase tracking-widest">Description / Notes</label>
                     <textarea
                         rows={4}
                         placeholder="Add some details about the job, interview dates, or recruiter contacts..."
-                        value={formData.description}
-                        onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                        value={formData.notes}
+                        onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
                         className="w-full p-4 rounded-xl bg-white/[0.03] border border-white/[0.08] text-white focus:border-white/20 focus:bg-white/[0.05] transition-all outline-none resize-none font-medium placeholder:text-text-muted"
                     />
                 </div>
+
+                {formData.status === 'interview' && (
+                    <div className="p-4 rounded-xl bg-amber-500/10 border border-amber-500/20 space-y-2 animate-in fade-in slide-in-from-top-2 duration-300">
+                        <Input
+                            type="datetime-local"
+                            label="Interview Date & Time"
+                            value={formData.interviewDate}
+                            onChange={(e) => setFormData({ ...formData, interviewDate: e.target.value })}
+                            className="bg-transparent border-white/10"
+                        />
+                    </div>
+                )}
 
                 <div className="flex justify-end gap-3 pt-6 border-t border-white/[0.08]">
                     <Button variant="outline" onClick={onClose} type="button" className="border-white/10 hover:bg-white/5 hover:text-white">

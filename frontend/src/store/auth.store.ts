@@ -26,6 +26,8 @@ export const useAuthStore = create<AuthState>((set) => ({
     localStorage.setItem('accessToken', data.accessToken);
     localStorage.setItem('refreshToken', data.refreshToken);
     set({ user: data.user, isAuthenticated: true });
+    // Notify extension of auth state change
+    window.postMessage({ type: 'AUTH_STATE_CHANGED' }, '*');
   },
 
   register: async (credentials) => {
@@ -34,12 +36,16 @@ export const useAuthStore = create<AuthState>((set) => ({
     localStorage.setItem('accessToken', data.accessToken);
     localStorage.setItem('refreshToken', data.refreshToken);
     set({ user: data.user, isAuthenticated: true });
+    // Notify extension of auth state change
+    window.postMessage({ type: 'AUTH_STATE_CHANGED' }, '*');
   },
 
   logout: () => {
     localStorage.removeItem('accessToken');
     localStorage.removeItem('refreshToken');
     set({ user: null, isAuthenticated: false });
+    // Notify extension of auth state change
+    window.postMessage({ type: 'AUTH_STATE_CHANGED' }, '*');
     window.location.href = '/login';
   },
 

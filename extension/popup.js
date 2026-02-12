@@ -4,6 +4,7 @@ document.addEventListener("DOMContentLoaded", init);
 let allJobs = {};
 let currentScrapedJob = null;
 let currentEditingId = null; // jobKey
+let editingMetadata = null; // Stores {jobId, platform, id}
 
 async function init() {
   const currentContainer = document.getElementById("currentJobContainer");
@@ -49,13 +50,22 @@ async function init() {
     jobModal.addEventListener("click", (e) => {
       if (e.target === jobModal) closeModal();
     });
+  }
 
-    const signInBtn = document.getElementById("signInBtn");
-    if (signInBtn) {
-      signInBtn.addEventListener("click", () => {
-        chrome.tabs.create({ url: 'http://localhost:3000/login' });
-      });
-    }
+  // Sign In button handler
+  const signInBtn = document.getElementById("signInBtn");
+  if (signInBtn) {
+    signInBtn.addEventListener("click", () => {
+      chrome.tabs.create({ url: 'http://localhost:3000/login' });
+    });
+  }
+
+  // Dashboard button handler
+  const dashboardBtn = document.getElementById("dashboardBtn");
+  if (dashboardBtn) {
+    dashboardBtn.addEventListener("click", () => {
+      chrome.tabs.create({ url: 'http://localhost:3000/dashboard' });
+    });
   }
 }
 
@@ -63,15 +73,93 @@ async function init() {
 // DATA LAYER
 // -------------------------------------------------------------
 async function loadJobs() {
-  const result = await chrome.storage.local.get("jobs");
-  allJobs = result.jobs || {};
+  const { accessToken } = await chrome.storage.local.get("accessToken");
+
+  if (!accessToken) {
+    allJobs = {};
+    return;
+  }
+
+  try {
+    const response = await fetch("http://localhost:5000/api/jobs", {
+      headers: {
+        "Authorization": `Bearer ${accessToken}`
+      }
+    });
+
+    if (response.ok) {
+      const jobs = await response.json();
+      // Transform array to object keyed by custom ID for existing logic compatibility
+      allJobs = jobs.reduce((acc, job) => {
+        // Use platform:jobId as key if available, otherwise fallback
+        const key = job.jobId && job.platform ? `${job.platform}:${job.jobId}` : job.id;
+        acc[key] = { ...job, key };
+        return acc;
+      }, {});
+    } else {
+      console.error("Failed to fetch jobs:", response.statusText);
+    }
+  } catch (error) {
+    console.error("Error loading jobs:", error);
+  }
 }
 
-async function saveJobs(newJobs) {
-  await chrome.storage.local.set({ jobs: newJobs });
-  allJobs = newJobs;
-  const searchInput = document.getElementById("searchInput");
-  if (searchInput) renderSavedJobs(searchInput.value);
+async function saveJobToApi(jobData) {
+  const { accessToken } = await chrome.storage.local.get("accessToken");
+
+  if (!accessToken) {
+    console.error("No access token found");
+    return;
+  }
+
+  try {
+    const response = await fetch("http://localhost:5000/api/jobs", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${accessToken}`
+      },
+      body: JSON.stringify(jobData)
+    });
+
+    if (response.ok) {
+      await loadJobs(); // Reload to get updated list
+      renderSavedJobs();
+    } else {
+      console.error("Failed to save job:", await response.text());
+    }
+  } catch (error) {
+    console.error("Error saving job:", error);
+  }
+}
+
+async function updateJobInApi(id, jobData) {
+  const { accessToken } = await chrome.storage.local.get("accessToken");
+
+  if (!accessToken) {
+    console.error("No access token found");
+    return;
+  }
+
+  try {
+    const response = await fetch(`http://localhost:5000/api/jobs/${id}`, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${accessToken}`
+      },
+      body: JSON.stringify(jobData)
+    });
+
+    if (response.ok) {
+      await loadJobs();
+      renderSavedJobs();
+    } else {
+      console.error("Failed to update job:", await response.text());
+    }
+  } catch (error) {
+    console.error("Error updating job:", error);
+  }
 }
 
 // -------------------------------------------------------------
@@ -306,7 +394,10 @@ function renderSavedJobs(query = "") {
         <div class="job-header">
           <div>
             <div class="job-title">${job.title}</div>
-            <div class="job-company">${job.company}</div>
+            <div class="job-company">
+              ${job.company}
+              ${job.platform ? `<span class="platform-tag" style="font-size:10px; opacity:0.7; margin-left:6px; border:1px solid #333; padding:1px 4px; border-radius:4px;">${job.platform}</span>` : ""}
+            </div>
           </div>
           <div class="status-badge status-${job.status}">${job.status}</div>
         </div>
@@ -344,16 +435,7 @@ function renderSavedJobs(query = "") {
 
     container.querySelectorAll(".delete-job-btn").forEach(b => {
       b.addEventListener("click", async (e) => {
-        const key = e.currentTarget.dataset.key;
-        if (confirm("Remove this job?")) {
-          delete allJobs[key];
-          await saveJobs(allJobs);
-          // Re-check current job validation
-          if (currentScrapedJob) {
-            const currentKey = `${currentScrapedJob.platform}:${currentScrapedJob.jobId}`;
-            if (currentKey === key) detectAndScrape();
-          }
-        }
+        alert("Delete functionality is currently disabled as it requires backend API implementation.");
       });
     });
 
@@ -384,7 +466,14 @@ async function quickSave(job) {
     notes: ""
   };
 
-  await saveJobs(allJobs);
+  const jobData = {
+    ...job,
+    status: "applied",
+    scrapedAt: new Date().toISOString(),
+    notes: ""
+  };
+
+  await saveJobToApi(jobData);
   renderCurrentJobCard(job); // updates button state
 }
 
@@ -401,6 +490,12 @@ function openModal(existingKey = null, prefillData = null) {
   } else if (prefillData) {
     data = prefillData;
   }
+
+  editingMetadata = {
+    jobId: data.jobId,
+    platform: data.platform,
+    id: data.id // Internal DB ID if it exists
+  };
 
   // Fill inputs function to safely set values
   const setVal = (id, val) => {
@@ -471,31 +566,31 @@ async function saveJobFromModal() {
     hrEmail: getVal("inpHrEmail"),
     hrPhone: getVal("inpHrPhone"),
 
-    scrapedAt: new Date().toISOString()
+    scrapedAt: new Date().toISOString(),
+    // Include metadata
+    jobId: editingMetadata?.jobId,
+    platform: editingMetadata?.platform
   };
 
-  let key = currentEditingId;
+  const key = currentEditingId;
 
-  // New Job Key Generation
-  if (!key) {
-    const id = Date.now().toString();
-    key = `${formData.platform}:${id}`;
+  // If editing an existing job, merging might be needed, but for now we just save the new data
+  // For the API approach, we might want to handle PUT vs POST if key exists
+  // But strictly per "save job" requirement, we'll try to just POST or strict update
+
+  // Actually, handle create vs update based on key/id
+  if (key && editingMetadata?.id) {
+    await updateJobInApi(editingMetadata.id, formData);
+  } else {
+    await saveJobToApi(formData);
   }
 
-  if (currentScrapedJob && !currentEditingId && formData.title === currentScrapedJob.title) {
-    key = `${currentScrapedJob.platform}:${currentScrapedJob.jobId}`;
-  }
-
-  allJobs[key] = {
-    ...allJobs[key],
-    ...formData
-  };
-
-  await saveJobs(allJobs);
   closeModal();
 
-  // If we just saved the current job, update the card
-  if (currentScrapedJob && key.includes(currentScrapedJob.jobId)) {
+  // If we just saved the current job, update local state so the UI reflects the edits
+  if (currentScrapedJob && (!key || key.includes(currentScrapedJob.jobId))) {
+    // Merge new data into currentScrapedJob
+    Object.assign(currentScrapedJob, formData);
     renderCurrentJobCard(currentScrapedJob);
   }
 }
@@ -548,8 +643,14 @@ async function checkAuth() {
 async function updateHeaderAuth() {
   const isAuthenticated = await checkAuth();
   const signInBtn = document.getElementById('signInBtn');
+  const dashboardBtn = document.getElementById('dashboardBtn');
+
   if (signInBtn) {
     signInBtn.style.display = isAuthenticated ? 'none' : 'inline-flex';
+  }
+
+  if (dashboardBtn) {
+    dashboardBtn.style.display = isAuthenticated ? 'inline-flex' : 'none';
   }
 }
 

@@ -2,19 +2,21 @@ import { create } from 'zustand';
 import api from '@/lib/api';
 
 export interface Job {
-    id: number;
+    id: string;
     title: string;
     company: string;
     platform?: string;
     location?: string;
     salary?: string;
-    job_url: string;
-    status: 'applied' | 'interview' | 'offer' | 'rejected';
-    description?: string;
-    posted_date?: string;
-    hr_name?: string;
-    hr_email?: string;
-    hr_phone?: string;
+    jobUrl?: string;
+    status: string;
+    notes?: string;
+    interviewDate?: string;
+    scrapedAt?: string;
+    hrName?: string;
+    hrEmail?: string;
+    hrPhone?: string;
+    jobId?: string;
     createdAt: string;
     updatedAt: string;
 }
@@ -25,8 +27,8 @@ interface JobState {
     error: string | null;
     fetchJobs: () => Promise<void>;
     addJob: (job: Omit<Job, 'id' | 'createdAt' | 'updatedAt'>) => Promise<void>;
-    updateJob: (id: number, data: Partial<Job>) => Promise<void>;
-    deleteJob: (id: number) => Promise<void>;
+    updateJob: (id: string, data: Partial<Job>) => Promise<void>;
+    deleteJob: (id: string) => Promise<void>;
 }
 
 export const useJobStore = create<JobState>((set, get) => ({

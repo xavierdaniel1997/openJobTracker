@@ -20,13 +20,13 @@
 }
 
 :root {
-  --background: #000000;
-  --foreground: #ffffff;
+  --background: #0a0a0a;
+  --foreground: #e8e8e8;
   --surface: #0a0a0a;
   --card: #141414;
   --card-hover: #1a1a1a;
-  --primary: #ffffff;
-  --primary-hover: #e8e8e8;
+  --primary: #e8e8e8;
+  --primary-hover: #d4d4d4;
   --text-secondary: #8a8a8a;
   --text-muted: #5a5a5a;
   --border: #242424;

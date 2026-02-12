@@ -15,10 +15,30 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 
-const allowedOrigin = process.env.CLIENT_ORIGIN || "http://localhost:3000";
+const allowedOrigin = process.env.CLIENT_ORIGIN;
 
 app.use(cors({
-    origin: allowedOrigin,
+    origin: (origin, callback) => {
+        // Allow requests with no origin (like mobile apps, curl, or same-origin)
+        if (!origin) return callback(null, true);
+        
+        // Check against allowed origin (from env)
+        if (allowedOrigin && origin === allowedOrigin) {
+            return callback(null, true);
+        }
+        
+        // Allow chrome extensions
+        if (origin.startsWith('chrome-extension://')) {
+            return callback(null, true);
+        }
+        
+        // In dev, maybe allow localhost:3000 explicitly if env is missing
+        if (origin.includes('localhost')) {
+             return callback(null, true);
+        }
+
+        return callback(new Error('Not allowed by CORS'));
+    },
     credentials: true,
     allowedHeaders: ['Content-Type', 'Authorization'],
 }));
