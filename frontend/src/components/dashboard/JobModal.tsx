@@ -27,6 +27,8 @@ export const JobModal = ({ isOpen, onClose, editingJob }: JobModalProps) => {
         hrEmail: '',
         hrPhone: '',
         interviewDate: '',
+        contactMethod: '',
+        feedback: '',
     });
 
     useEffect(() => {
@@ -44,6 +46,8 @@ export const JobModal = ({ isOpen, onClose, editingJob }: JobModalProps) => {
                 hrEmail: editingJob.hrEmail || '',
                 hrPhone: editingJob.hrPhone || '',
                 interviewDate: editingJob.interviewDate ? new Date(editingJob.interviewDate).toISOString().slice(0, 16) : '',
+                contactMethod: editingJob.contactMethod || '',
+                feedback: editingJob.feedback || '',
             });
         } else {
             setFormData({
@@ -59,6 +63,8 @@ export const JobModal = ({ isOpen, onClose, editingJob }: JobModalProps) => {
                 hrEmail: '',
                 hrPhone: '',
                 interviewDate: '',
+                contactMethod: '',
+                feedback: '',
             });
         }
     }, [editingJob, isOpen]);
@@ -167,6 +173,51 @@ export const JobModal = ({ isOpen, onClose, editingJob }: JobModalProps) => {
                     </div>
                 </div>
 
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-2">
+                    <div className="space-y-1.5">
+                        <label className="text-xs font-bold text-text-secondary uppercase tracking-widest">Contact Mode</label>
+                        <div className="relative">
+                            <select
+                                value={formData.contactMethod}
+                                onChange={(e) => setFormData({ ...formData, contactMethod: e.target.value })}
+                                className="w-full h-12 px-4 rounded-xl bg-white/[0.03] border border-white/[0.08] text-white focus:border-white/20 focus:bg-white/[0.05] transition-all outline-none appearance-none font-medium"
+                            >
+                                <option value="" className="bg-card text-white">Select Mode</option>
+                                <option value="Phone Call" className="bg-card text-white">Phone Call</option>
+                                <option value="Email" className="bg-card text-white">Email</option>
+                                <option value="LinkedIn" className="bg-card text-white">LinkedIn</option>
+                                <option value="WhatsApp" className="bg-card text-white">WhatsApp</option>
+                                <option value="In Person" className="bg-card text-white">In Person</option>
+                                <option value="Other" className="bg-card text-white">Other</option>
+                            </select>
+                            <svg className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-text-muted pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                            </svg>
+                        </div>
+                    </div>
+                    {formData.status === 'interview' && (
+                        <div className="animate-in fade-in slide-in-from-top-2 duration-300">
+                            <Input
+                                type="datetime-local"
+                                label="Interview Date & Time"
+                                value={formData.interviewDate}
+                                onChange={(e) => setFormData({ ...formData, interviewDate: e.target.value })}
+                            />
+                        </div>
+                    )}
+                </div>
+
+                <div className="space-y-1.5">
+                    <label className="text-xs font-bold text-text-secondary uppercase tracking-widest">Feedback / HR Response</label>
+                    <textarea
+                        rows={3}
+                        placeholder="What did they say? Any specific feedback or next steps..."
+                        value={formData.feedback}
+                        onChange={(e) => setFormData({ ...formData, feedback: e.target.value })}
+                        className="w-full p-4 rounded-xl bg-white/[0.03] border border-white/[0.08] text-white focus:border-white/20 focus:bg-white/[0.05] transition-all outline-none resize-none font-medium placeholder:text-text-muted"
+                    />
+                </div>
+
                 <div className="space-y-1.5">
                     <label className="text-xs font-bold text-text-secondary uppercase tracking-widest">Description / Notes</label>
                     <textarea
@@ -178,17 +229,6 @@ export const JobModal = ({ isOpen, onClose, editingJob }: JobModalProps) => {
                     />
                 </div>
 
-                {formData.status === 'interview' && (
-                    <div className="p-4 rounded-xl bg-amber-500/10 border border-amber-500/20 space-y-2 animate-in fade-in slide-in-from-top-2 duration-300">
-                        <Input
-                            type="datetime-local"
-                            label="Interview Date & Time"
-                            value={formData.interviewDate}
-                            onChange={(e) => setFormData({ ...formData, interviewDate: e.target.value })}
-                            className="bg-transparent border-white/10"
-                        />
-                    </div>
-                )}
 
                 <div className="flex justify-end gap-3 pt-6 border-t border-white/[0.08]">
                     <Button variant="outline" onClick={onClose} type="button" className="border-white/10 hover:bg-white/5 hover:text-white">

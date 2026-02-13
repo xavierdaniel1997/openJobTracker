@@ -12,6 +12,8 @@ export interface Job {
     status: string;
     notes?: string;
     interviewDate?: string;
+    contactMethod?: string;
+    feedback?: string;
     scrapedAt?: string;
     hrName?: string;
     hrEmail?: string;

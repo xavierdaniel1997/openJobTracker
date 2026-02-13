@@ -39,6 +39,8 @@ model Job {
   notes     String?
   jobId     String?  // Platform specific ID
   interviewDate DateTime?
+  contactMethod String?
+  feedback      String?
   scrapedAt DateTime?
 
   createdAt DateTime @default(now())

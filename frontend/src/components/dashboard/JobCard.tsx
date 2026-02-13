@@ -47,16 +47,17 @@ export const JobCard = ({ job, onClick, onEdit, onDelete }: JobCardProps) => {
                                     </a>
                                 )}
                             </h4>
-                            <Badge variant={statusVariants[job.status] || 'default'} className="px-3 py-1 text-[10px] font-bold uppercase tracking-wider rounded-full border border-white/20">
-                                {job.status}
-                            </Badge>
+                            <span className="text-[10px] text-[#5a5a5a] uppercase tracking-wider font-bold group-hover:text-[#8a8a8a] transition-colors">
+                                {new Date(job.createdAt).toLocaleDateString()}
+                            </span>
                         </div>
 
-                        <div className="text-[13px] text-[#8a8a8a] font-medium flex items-center gap-2">
-                            {job.company}
-                            {job.platform && (
-                                <span className={`px-1.5 py-0.5 rounded text-[10px] uppercase tracking-wider font-semibold border ${platformConfig.style}`}>
-                                    {platformConfig.label}
+                        <div className="text-[13px] text-[#8a8a8a] font-medium flex items-center flex-wrap gap-2">
+                            <span>{job.company}</span>
+                            {job.location && (
+                                <span className="flex items-center gap-1 opacity-70">
+                                    <span className="text-[10px]">|</span>
+                                    <span>📍 {job.location}</span>
                                 </span>
                             )}
                         </div>
@@ -65,12 +66,6 @@ export const JobCard = ({ job, onClick, onEdit, onDelete }: JobCardProps) => {
             </div>
 
             <div className="relative z-10 flex flex-wrap gap-2.5 mt-4">
-                {job.location && (
-                    <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/5 border border-white/[0.08] text-[11px] font-medium text-[#8a8a8a] hover:bg-white/10 hover:text-white hover:border-white/[0.15] transition-colors">
-                        <span>📍</span>
-                        {job.location}
-                    </div>
-                )}
                 {job.salary && (
                     <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/5 border border-white/[0.08] text-[11px] font-medium text-[#8a8a8a] hover:bg-white/10 hover:text-white hover:border-white/[0.15] transition-colors">
                         <span>💰</span>
@@ -83,15 +78,35 @@ export const JobCard = ({ job, onClick, onEdit, onDelete }: JobCardProps) => {
                         {job.hrName}
                     </div>
                 )}
-                {/* Extension has 'Time' tag for jobType, we don't have jobType in schema yet, but if we did: 
-                      <div className="tag">⏰ {job.jobType}</div> 
-                  */}
+                {job.contactMethod && (
+                    <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-blue-500/10 border border-blue-500/20 text-[11px] font-medium text-blue-400 hover:bg-blue-500/20 transition-colors">
+                        <span>📞</span>
+                        {job.contactMethod}
+                    </div>
+                )}
             </div>
 
+            {job.feedback && (
+                <div className="relative z-10 mt-4 p-3 rounded-xl bg-white/[0.03] border border-white/[0.08]">
+                    <p className="text-[11px] text-[#8a8a8a] line-clamp-2 leading-relaxed italic">
+                        <span className="text-white/40 not-italic mr-1">“</span>
+                        {job.feedback}
+                        <span className="text-white/40 not-italic ml-1">”</span>
+                    </p>
+                </div>
+            )}
+
             <div className="relative z-10 flex items-center justify-between pt-4 mt-4 border-t border-white/10">
-                <span className="text-[10px] text-[#5a5a5a] uppercase tracking-wider font-bold">
-                    {new Date(job.createdAt).toLocaleDateString()}
-                </span>
+                <div className="flex items-center gap-2">
+                    <Badge variant={statusVariants[job.status] || 'default'} className="px-2.5 py-0.5 text-[9px] font-bold uppercase tracking-wider rounded-md border border-white/10">
+                        {job.status}
+                    </Badge>
+                    {job.platform && (
+                        <span className={`px-1.5 py-0.5 rounded text-[10px] uppercase tracking-wider font-semibold border ${platformConfig.style}`}>
+                            {platformConfig.label}
+                        </span>
+                    )}
+                </div>
                 <div className="flex gap-2">
                     {/* Buttons matching extension .btn style roughly (icon only) */}
                     {job.jobUrl && (

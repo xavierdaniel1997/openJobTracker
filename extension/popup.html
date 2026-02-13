@@ -23,6 +23,10 @@
       --gradient-current: linear-gradient(135deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.03) 100%);
       --glass-bg: rgba(255, 255, 255, 0.03);
       --glass-border: rgba(255, 255, 255, 0.08);
+      --platform-linkedin: #0077b5;
+      --platform-indeed: #2164f3;
+      --platform-glassdoor: #0caa41;
+      --platform-naukri: #4a90e2;
     }
 
     * {
@@ -205,12 +209,21 @@
     }
 
     .job-company {
-      font-size: 13px;
+      font-size: 11px;
       color: var(--text-secondary);
       display: flex;
       align-items: center;
+      flex-wrap: wrap;
       gap: 6px;
       font-weight: 500;
+    }
+
+    .job-date {
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
     }
 
     .job-info {
@@ -221,78 +234,100 @@
     }
 
     .tag {
-      font-size: 11px;
-      padding: 6px 12px;
-      border-radius: 20px;
+      font-size: 13px;
+      padding: 8px 16px;
+      border-radius: 9999px;
       background: rgba(255, 255, 255, 0.05);
-      color: var(--text-secondary);
+      color: #8a8a8a;
       display: flex;
       align-items: center;
-      gap: 5px;
-      border: 1px solid rgba(255, 255, 255, 0.08);
+      gap: 8px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
       font-weight: 500;
       transition: all 0.2s ease;
     }
 
-    .tag:hover {
-      background: rgba(255, 255, 255, 0.1);
-      color: var(--text);
-      border-color: rgba(255, 255, 255, 0.15);
+    .tag-salary {
+      background: rgba(254, 240, 138, 0.05);
+      border-color: rgba(254, 240, 138, 0.1);
+    }
+
+    .tag-contact {
+      background: rgba(59, 130, 246, 0.1);
+      border-color: rgba(59, 130, 246, 0.2);
+      color: #60a5fa;
+    }
+
+    .platform-tag {
+      display: inline-block;
     }
 
     .status-badge {
-      font-size: 10px;
-      padding: 5px 12px;
-      border-radius: 20px;
-      font-weight: 700;
+      font-size: 12px;
+      padding: 6px 14px;
+      border-radius: 8px;
+      font-weight: 800;
       text-transform: uppercase;
-      letter-spacing: 0.03em;
+      letter-spacing: 0.05em;
+      background: rgba(59, 130, 246, 0.15);
+      color: #60a5fa;
+      border: none;
     }
 
-    .status-applied {
-      background: rgba(255, 255, 255, 0.1);
-      color: #ffffff;
-      border: 1px solid rgba(255, 255, 255, 0.2);
+    .platform-tag {
+      font-size: 11px;
+      padding: 6px 14px;
+      border-radius: 8px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      background: rgba(59, 130, 246, 0.1);
+      color: #3b82f6;
+      border: none;
     }
 
-    .status-interview {
-      background: rgba(251, 191, 36, 0.15);
-      color: var(--warning);
-      border: 1px solid rgba(251, 191, 36, 0.3);
-    }
-
-    .status-offer {
-      background: rgba(74, 222, 128, 0.15);
-      color: var(--success);
-      border: 1px solid rgba(74, 222, 128, 0.3);
-    }
-
-    .status-rejected {
-      background: rgba(248, 113, 113, 0.15);
-      color: var(--danger);
-      border: 1px solid rgba(248, 113, 113, 0.3);
-    }
-
-    /* ACTIONS */
     .job-actions {
       display: flex;
-      /* Changed from grid to flex */
       align-items: center;
-      gap: 8px;
+      justify-content: space-between;
       margin-top: 16px;
       padding-top: 16px;
-      border-top: 1px solid rgba(255, 255, 255, 0.1);
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
     }
 
-    .job-actions .btn {
-      flex: 1;
-      /* Distribute space */
+    .job-feedback {
+      margin-top: 16px;
+      padding: 12px;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 12px;
+      font-size: 11px;
+      color: var(--text-secondary);
+      font-style: italic;
+      line-height: 1.6;
+      line-clamp: 2;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
     }
 
-    .job-actions .btn-icon-only {
-      flex: 0 0 36px;
-      /* Fixed width for icon buttons */
+    .btn-icon-only {
+      width: 32px;
+      height: 32px;
       padding: 0;
+      border-radius: 12px;
+      color: var(--text-secondary);
+    }
+
+    .btn-icon-only:hover {
+      background: rgba(255, 255, 255, 0.1);
+      color: var(--text);
+    }
+
+    .btn-delete:hover {
+      background: rgba(248, 113, 113, 0.1) !important;
+      color: var(--danger) !important;
     }
 
     .btn {
@@ -709,9 +744,23 @@
           </div>
         </div>
 
-        <div class="form-group">
-          <label class="form-label">Location</label>
-          <input type="text" id="inpLocation" class="form-input" placeholder="Remote / New York" />
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Location</label>
+            <input type="text" id="inpLocation" class="form-input" placeholder="Remote / New York" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Contact Mode</label>
+            <select id="inpContactMethod" class="form-select">
+              <option value="">Select Mode</option>
+              <option value="Phone Call">Phone Call</option>
+              <option value="Email">Email</option>
+              <option value="LinkedIn">LinkedIn</option>
+              <option value="WhatsApp">WhatsApp</option>
+              <option value="In Person">In Person</option>
+              <option value="Other">Other</option>
+            </select>
+          </div>
         </div>
 
         <div class="form-group">
@@ -725,8 +774,13 @@
         </div>
 
         <div class="form-group">
+          <label class="form-label">Feedback / HR Response</label>
+          <textarea id="inpFeedback" class="form-textarea" rows="2" placeholder="What did they say?"></textarea>
+        </div>
+
+        <div class="form-group">
           <label class="form-label">Notes</label>
-          <textarea id="inpNotes" class="form-textarea" rows="3"
+          <textarea id="inpNotes" class="form-textarea" rows="2"
             placeholder="Interview notes, tech stack, etc."></textarea>
         </div>
       </div>

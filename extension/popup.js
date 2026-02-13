@@ -276,41 +276,50 @@ function renderCurrentJobCard(job) {
   const isSaved = !!allJobs[key];
 
   const html = `
-    <div class="job-card current-job-card">
-      <div class="job-header">
-        <div>
-          <div class="job-title">${job.title || "Unknown Title"}</div>
-          <div class="job-company">
+    <div class="job-card current-job-card" style="border: 1px solid rgba(255,255,255,0.15); box-shadow: 0 4px 20px rgba(0,0,0,0.4);">
+      <div class="job-header" style="margin-bottom: 8px;">
+        <div style="flex: 1; min-width: 0;">
+          <div class="job-title" style="margin-bottom: 8px; font-size: 18px; font-weight: 700;">${job.title || "Unknown Title"}</div>
+          <div class="job-company" style="font-size: 15px; color: #8a8a8a; font-weight: 500; display: flex; align-items: center; gap: 8px;">
             <span>${job.company || "Unknown Company"}</span>
+            ${job.location ? `
+              <span style="opacity:0.3; font-weight: 300;">|</span>
+              <span style="display: flex; align-items: center; gap: 4px;">
+                <span style="color: #ef4444; font-size: 14px;">📍</span>
+                <span>${job.location}</span>
+              </span>
+            ` : ""}
           </div>
         </div>
       </div>
       
-      <div class="job-info">
-        ${job.location ? `<div class="tag">📍 ${job.location}</div>` : ""}
-        ${job.salary ? `<div class="tag">💰 ${job.salary}</div>` : ""}
-        ${job.platform ? `<div class="tag">🌐 ${job.platform}</div>` : ""}
+      <div class="job-info" style="margin-top: 20px; gap: 12px; display: flex; flex-wrap: wrap; align-items: center;">
+        ${job.salary ? `<div class="tag tag-salary">💰 ${job.salary}</div>` : ""}
         ${job.jobType ? `<div class="tag">⏰ ${job.jobType}</div>` : ""}
-        ${job.hrName ? `<div class="tag" title="Recruiter Name">👤 ${job.hrName}</div>` : ""}
-        ${job.hrEmail ? `<div class="tag" title="Recruiter Email">📧 ${job.hrEmail}</div>` : ""}
-        ${job.hrPhone ? `<div class="tag" title="Recruiter Phone">📞 ${job.hrPhone}</div>` : ""}
       </div>
 
-      <div class="job-actions">
-        ${isSaved
-      ? `<button class="btn btn-secondary scroll-saved-btn" data-key="${key}">
-           <svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
-           Saved
-         </button>`
-      : `<button class="btn btn-primary" id="btnSaveCurrent">
-           <svg viewBox="0 0 24 24"><path d="M17 3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V7l-4-4zm-5 16c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3zm3-10H5V5h10v4z"/></svg>
+      <div class="job-divider" style="height: 1px; background: rgba(255, 255, 255, 0.08); margin: 20px 0;"></div>
+
+      <div class="job-footer" style="display: flex; justify-content: space-between; align-items: center;">
+        <div style="display: flex; align-items: center; gap: 12px;">
+          ${isSaved ? `<div class="status-badge" style="background: rgba(255,255,255,0.05); color: #8a8a8a; border: 1px solid rgba(255,255,255,0.1);">SAVED</div>` : ""}
+          ${job.platform ? `<span class="platform-tag" style="background: rgba(59, 130, 246, 0.1); color: #3b82f6;">${job.platform}</span>` : ""}
+        </div>
+        <div style="display: flex; gap: 12px; align-items: center;">
+          <div id="btnEditCurrent" style="cursor: pointer; opacity: 0.6; padding: 8px; border-radius: 10px; background: rgba(255,255,255,0.03);" title="Edit Detail">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 18px; height: 18px;"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+          </div>
+          ${isSaved
+      ? `<button class="btn btn-secondary scroll-saved-btn" data-key="${key}" style="padding: 0 16px; height: 36px; border-radius: 12px; font-size: 13px; font-weight: 400;">
+             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 14px; height: 14px;"><polyline points="20 6 9 17 4 12"></polyline></svg>
+             View
+           </button>`
+      : `<button class="btn btn-primary" id="btnSaveCurrent" style="padding: 0 16px; height: 36px; border-radius: 12px; font-weight: 400; font-size: 13px;">
+           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 14px; height: 14px;"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path></svg>
            Save
          </button>`
     }
-        <button class="btn btn-outline" id="btnEditCurrent">
-          <svg viewBox="0 0 24 24"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>
-          Edit
-        </button>
+        </div>
       </div>
     </div>
   `;
@@ -363,7 +372,7 @@ function renderSavedJobs(query = "") {
     const jobsArray = Object.entries(allJobs).map(([k, v]) => ({ key: k, ...v }));
 
     // Sort by date (newest first)
-    jobsArray.sort((a, b) => new Date(b.scrapedAt) - new Date(a.scrapedAt));
+    jobsArray.sort((a, b) => new Date(b.createdAt || b.scrapedAt) - new Date(a.createdAt || a.scrapedAt));
 
     // Filter
     const filtered = jobsArray.filter(j => {
@@ -390,36 +399,63 @@ function renderSavedJobs(query = "") {
       const el = document.createElement("div");
       el.className = "job-card";
       el.id = `job-${job.key}`;
+
+      const platformClass = `platform-${job.platform?.toLowerCase() || 'other'}`;
+
       el.innerHTML = `
-        <div class="job-header">
-          <div>
-            <div class="job-title">${job.title}</div>
-            <div class="job-company">
-              ${job.company}
-              ${job.platform ? `<span class="platform-tag" style="font-size:10px; opacity:0.7; margin-left:6px; border:1px solid #333; padding:1px 4px; border-radius:4px;">${job.platform}</span>` : ""}
+        <div class="job-header" style="margin-bottom: 8px;">
+          <div style="flex: 1; min-width: 0;">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+              <div class="job-title" style="margin-bottom: 8px; font-size: 18px; font-weight: 700;">${job.title}</div>
+              <div class="job-date" style="color: #8a8a8a; font-weight: 500; font-size: 13px;">${new Date(job.createdAt || job.scrapedAt).toLocaleDateString()}</div>
+            </div>
+            <div class="job-company" style="font-size: 15px; color: #8a8a8a; font-weight: 500; display: flex; align-items: center; gap: 8px;">
+              <span>${job.company}</span>
+              ${job.location ? `
+                <span style="opacity:0.3; font-weight: 300;">|</span>
+                <span style="display: flex; align-items: center; gap: 4px;">
+                  <span style="color: #ef4444; font-size: 14px;">📍</span>
+                  <span>${job.location}</span>
+                </span>
+              ` : ""}
             </div>
           </div>
-          <div class="status-badge status-${job.status}">${job.status}</div>
         </div>
         
-        <div class="job-info">
-          <div class="tag">📍 ${job.location || "N/A"}</div>
-          <div class="tag">📅 ${new Date(job.scrapedAt).toLocaleDateString()}</div>
+        <div class="job-info" style="margin-top: 20px; gap: 12px; display: flex; flex-wrap: wrap; align-items: center;">
+          ${job.salary ? `<div class="tag tag-salary">💰 ${job.salary}</div>` : ""}
+          ${job.contactMethod ? `<div class="tag tag-contact">📞 ${job.contactMethod}</div>` : ""}
         </div>
 
-        <div class="job-actions">
-          <button class="btn btn-outline view-details-btn" data-key="${job.key}" title="Edit Details">
-            <svg viewBox="0 0 24 24"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>
-            Edit
-          </button>
+        ${job.feedback ? `
+          <div class="job-feedback" style="margin-top: 16px;">
+            <span style="opacity: 0.4; font-style: normal; margin-right: 4px;">“</span>
+            ${job.feedback}
+            <span style="opacity: 0.4; font-style: normal; margin-left: 4px;">”</span>
+          </div>
+        ` : ""}
+
+        <div class="job-divider" style="height: 1px; background: rgba(255, 255, 255, 0.08); margin: 20px 0;"></div>
+
+        <div class="job-footer" style="display: flex; justify-content: space-between; align-items: center;">
+          <div style="display: flex; align-items: center; gap: 12px;">
+            <div class="status-badge">${job.status}</div>
+            ${job.platform ? `<span class="platform-tag">${job.platform}</span>` : ""}
+          </div>
           
-          <a href="${job.jobUrl}" target="_blank" class="btn btn-secondary btn-icon-only" title="Open Link">
-            <svg viewBox="0 0 24 24"><path d="M19 19H5V5h7V3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2v-7h-2v7zM14 3v2h3.59l-9.83 9.83 1.41 1.41L19 6.41V10h2V3h-7z"/></svg>
-          </a>
-          
-          <button class="btn btn-outline delete-job-btn btn-icon-only" data-key="${job.key}" title="Delete">
-             <svg viewBox="0 0 24 24"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>
-          </button>
+          <div style="display: flex; gap: 16px; align-items: center; opacity: 0.6;">
+            ${job.jobUrl ? `
+              <a href="${job.jobUrl}" target="_blank" style="color: white;" title="Open Link">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 18px; height: 18px;"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
+              </a>
+            ` : ""}
+            <div class="view-details-btn" data-key="${job.key}" style="cursor: pointer; color: white;" title="Edit Detail">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 18px; height: 18px;"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+            </div>
+            <div class="delete-job-btn" data-key="${job.key}" style="cursor: pointer; color: white;" title="Delete">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 18px; height: 18px;"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
+            </div>
+          </div>
         </div>
       `;
       container.appendChild(el);
@@ -510,6 +546,8 @@ function openModal(existingKey = null, prefillData = null) {
   setVal("inpSalary", data.salary);
   setVal("inpUrl", data.jobUrl || currentScrapedJob?.jobUrl || "");
   setVal("inpStatus", data.status || "applied");
+  setVal("inpContactMethod", data.contactMethod);
+  setVal("inpFeedback", data.feedback);
   setVal("inpNotes", data.notes);
 
   // Recruiter Fields
@@ -561,10 +599,8 @@ async function saveJobFromModal() {
     jobUrl: getVal("inpUrl"),
     status: getVal("inpStatus"),
     notes: getVal("inpNotes"),
-    // Recruiter
-    hrName: getVal("inpHrName"),
-    hrEmail: getVal("inpHrEmail"),
-    hrPhone: getVal("inpHrPhone"),
+    contactMethod: getVal("inpContactMethod"),
+    feedback: getVal("inpFeedback"),
 
     scrapedAt: new Date().toISOString(),
     // Include metadata

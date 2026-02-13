@@ -15,6 +15,8 @@ export interface CreateJobInput {
   hrPhone?: string;
   jobId?: string;
   interviewDate?: Date | string;
+  contactMethod?: string;
+  feedback?: string;
   scrapedAt?: Date | string;
 }
 
@@ -35,6 +37,8 @@ export const createJob = async (data: CreateJobInput) => {
       hrPhone: data.hrPhone,
       jobId: data.jobId,
       interviewDate: data.interviewDate ? new Date(data.interviewDate) : undefined,
+      contactMethod: data.contactMethod,
+      feedback: data.feedback,
       scrapedAt: data.scrapedAt ? new Date(data.scrapedAt) : undefined,
     },
   });
@@ -76,6 +80,8 @@ export const updateJob = async (id: string, userId: string, data: Partial<Create
       hrPhone: data.hrPhone,
       jobId: data.jobId,
       interviewDate: data.interviewDate ? new Date(data.interviewDate) : undefined,
+      contactMethod: data.contactMethod,
+      feedback: data.feedback,
       scrapedAt: data.scrapedAt ? new Date(data.scrapedAt) : undefined,
     },
   });
